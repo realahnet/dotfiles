@@ -1,6 +1,5 @@
 alsa-utils
 awesome-terminal-fonts
-brightnessctl
 cantarell-fonts
 gnome-themes-extra
 hypridle
@@ -17,6 +16,7 @@ powerprofilesctl
 qt6ct
 rofi-emoji
 swaync
+swayosd
 ttf-jetbrains-mono-nerd
 ttf-montserrat
 ttf-opensans
