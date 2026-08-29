@@ -1,0 +1,107 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 34,
+
+    "modules-left": ["hyprland/workspaces"],
+    "modules-center": [],
+    "modules-right": ["custom/welcome", "tray", "battery", "clock", "custom/notification"],
+
+    "hyprland/workspaces": {
+        "format": "{id}: {windows}",
+        "format-window-separator": " ",
+        "window-rewrite-default": "󰘔",
+        "window-rewrite": {
+            // Terminals & Browsers
+            "class<kitty>": "󰄛",
+            "class<Alacritty>": "",
+            "class<google-chrome|com.google.Chrome>": "",
+
+            // Code & Development
+            "class<code|Code|code-url-handler>": "󰨞",
+            "class<org.gnome.Meld>": "F",
+            "class<micro>": "󰘦",
+            "class<vim>": "",
+
+            // System, File Managers & Audio
+            "class<nemo|org.kde.dolphin>": "󰉋",
+            "class<io.missioncenter.MissionCenter>": "󰍛",
+            "class<btop>": "󰄨",
+            "class<org.pulseaudio.pavucontrol>": "󰍰",
+            "class<com.github.wwmm.easyeffects>": "󰓃",
+            "class<com.obsproject.Studio>": "󰑋",
+            "class<org.kde.spectacle>": "󰹑",
+            "class<org.kde.partitionmanager>": "󰋊",
+
+            // Communication & Web Apps
+            "class<org.telegram.desktop>": "",
+            "class<discord>": "󰙯",
+            "class<slack>": "󰒱",
+            "class<com.rtosta.zapzap|com.rtosta.zapzap.nogpu>": "󰖣",
+            "class<abdownloadmanager>": "󰇚",
+            "class<org.qbittorrent.qBittorrent>": "󰛴",
+            "class<filezilla>": "󰈂",
+
+            // Media & Viewers
+            "class<mpv|org.kde.haruna>": "",
+            "class<vlc>": "󰕼",
+            "class<imv|imv-dir|org.kde.gwenview>": "󰋩",
+            "class<org.kde.kate|org.kde.kwrite>": "󰏫",
+            "class<org.kde.kcalc>": "󰪚",
+            "class<org.kde.ark>": "󰛫",
+
+            // Gaming & Launchers
+            "class<steam>": "󰓓",
+            "class<net.lutris.Lutris|net.lutris.Lutris1>": "󰺵",
+            "class<org.vinegarhq.Sober>": "󰲡",
+            "class<com.modrinth.ModrinthApp>": "󰍳",
+            "class<net.davidotek.pupgui2>": "󰓓",
+            "class<dosbox>": "󰊴",
+            "class<io.github.benjamimgois.goverlay>": "󰓓",
+            "class<wine|winetricks>": "󰡷",
+
+            // Custom CachyOS / Tools
+            "class<com.wayle.settings>": "󰒓",
+            "class<cachyos-hello|org.cachyos.KernelManager|org.cachyos.scx-manager>": "",
+            "class<nvidia-settings>": "󰢮",
+            "class<nwg-look|nwg-displays|qt6ct>": "󰏘",
+
+            // Universal Title Overrides
+            "title<.*youtube.*>": ""
+        },
+        "on-click": "activate"
+    },
+
+    "battery": {
+        "states": {
+            "warning": 30,
+            "critical": 15
+        },
+        "format": "󰁹 {capacity}%",
+        "format-charging": "󱐋 {capacity}%",
+        "format-plugged": " {capacity}%",
+        "tooltip": false
+    },
+
+    "custom/notification": {
+        "tooltip": false,
+        "format": "󰂚",
+        "on-click": "swaync-client -t -swb"
+    },
+
+    // Welcome Module with Pango Markup (Muted grey for ahnet)
+    "custom/welcome": {
+        "format": "Welcome, <span foreground='#888888'>ahnet</span>",
+        "tooltip": false
+    },
+
+    "tray": {
+        "icon-size": 16,
+        "spacing": 10
+    },
+
+    "clock": {
+        "format": "󰥔 {:%I:%M %p  󰃭 %b %d}",
+        "tooltip-format": "<tt><small>{calendar}</small></tt>"
+    }
+}

@@ -1,0 +1,98 @@
+/* --- Color Palette --- */
+@define-color bg          #000000;
+@define-color surface     #050505;
+@define-color elevated    #1f1f1f;
+@define-color fg          #d8d8d8;
+@define-color fg_muted    #888888;
+@define-color primary     #b0b0b0;
+
+* {
+    border: none;
+    border-radius: 0px;
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", monospace;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 0;
+}
+
+/* Base Bar */
+window#waybar {
+    background: rgba(18, 18, 18, 0.95);
+    color: @fg;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* --- Workspaces --- */
+#workspaces {
+    background: @bg;
+    margin: 4px 6px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+#workspaces button {
+    padding: 1px 12px;
+    color: @fg_muted;
+    background: transparent;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#workspaces button label {
+    font-size: 16px;
+}
+
+#workspaces button:hover {
+    background: @elevated;
+    color: @fg;
+}
+
+#workspaces button.active {
+    color: @bg;
+    background: @primary;
+    border-radius: 4px;
+}
+
+#workspaces button.urgent {
+    background: #ffffff;
+    color: @bg;
+}
+
+/* --- Modules Right Containers --- */
+#custom-notification, #tray, #battery, #clock {
+    background: @elevated;
+    color: @fg;
+    margin: 4px 3px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+#custom-notification:hover, #battery:hover, #clock:hover {
+    background: @primary;
+    color: @bg;
+}
+
+/* Battery Warnings */
+#battery.charging, #battery.plugged {
+    color: @fg;
+}
+
+#battery.critical:not(.charging) {
+    background-color: #ffffff;
+    color: @bg;
+}
+
+/* --- Welcome Text (No Background Box) --- */
+#custom-welcome {
+    background: transparent;
+    color: @fg;
+    margin: 4px 6px;
+    padding: 4px 4px;
+}
+
+#tray {
+    padding-right: 8px;
+    padding-left: 8px;
+}
