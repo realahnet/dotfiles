@@ -96,3 +96,16 @@ window#waybar {
     padding-right: 8px;
     padding-left: 8px;
 }
+
+#pulseaudio {
+    color: #ffffff;
+    background-color: transparent;
+    padding: 0px 10px;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+#pulseaudio.muted {
+    color: #888888;
+}

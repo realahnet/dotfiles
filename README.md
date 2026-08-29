@@ -19,7 +19,7 @@ This guide details how to install and configure this Hyprland dotfiles setup on 
 > **Backup Warning:** Make sure to backup your current configurations (`~/.config/hypr`, `~/.config/waybar`, etc.) before running the installation script to avoid overwriting your personal settings.
 
 > [!WARNING]
-> **THE MAX POSSIBLE VOLUME IS SET TO 100%! PLEASE EDIT `hyprland.lua` and remove the `"--max-volume 150"` parameter from volume raise and lower keybinds. Otherwise your speakers would probably explode?
+>*THE **MAX POSSIBLE VOLUME** IS SET TO **150%!** PLEASE EDIT `hyprland.lua` and remove the `"--max-volume 150"` parameter from volume raise and lower keybinds. Otherwise **your speakers** would probably **explode**?
 ---
 
 ## 1. Distribution Support
