@@ -4,7 +4,7 @@
 @define-color elevated    #1f1f1f;
 @define-color fg          #d8d8d8;
 @define-color fg_muted    #888888;
-@define-color primary     #b0b0b0;
+@define-color primary     #d0d0d0;
 
 * {
     border: none;
@@ -26,13 +26,13 @@ window#waybar {
 #workspaces {
     background: @bg;
     margin: 4px 6px;
-    padding: 2px 6px;
+    padding: 0px;
     border-radius: 4px;
     border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 #workspaces button {
-    padding: 1px 12px;
+    padding: 3px 12px;
     color: @fg_muted;
     background: transparent;
     border-radius: 4px;
@@ -49,14 +49,28 @@ window#waybar {
 }
 
 #workspaces button.active {
-    color: @bg;
-    background: @primary;
+    color: #000000;
+    background: #d0d0d0;
     border-radius: 4px;
 }
 
+/* Urgent Workspace Flashing Animation */
+@keyframes blink-urgent {
+    to {
+        background-color: #555555;
+        color: #ffffff;
+    }
+}
+
 #workspaces button.urgent {
-    background: #ffffff;
-    color: @bg;
+    background-color: @elevated;
+    color: @fg;
+    border-radius: 4px;
+    animation-name: blink-urgent;
+    animation-duration: 0.6s;
+    animation-timing-function: steps(12);
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
 
 /* --- Modules Right Containers --- */
