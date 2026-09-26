@@ -86,12 +86,14 @@
     "custom/notification": {
         "tooltip": false,
         "format": "󰂚",
-        "on-click": "swaync-client -t -swb"
+        "on-click": "swaync-client -t"
     },
 
-    // Welcome Module with Pango Markup (Muted grey for ahnet)
+    // Dynamic Time-Based Greeting (Checks every 5 minutes)
     "custom/welcome": {
-        "format": "Welcome, <span foreground='#888888'>ahnet</span>",
+        "exec": "sh -c 'h=$(date +%H); if [ $h -ge 5 ] && [ $h -lt 12 ]; then g=\"Good morning\"; elif [ $h -ge 12 ] && [ $h -lt 17 ]; then g=\"Good afternoon\"; elif [ $h -ge 17 ] && [ $h -lt 22 ]; then g=\"Good evening\"; else g=\"Good night\"; fi; echo \"$g, <span foreground=\\\"#888888\\\">ahnet</span>\"'",
+        "interval": 300,
+        "format": "{}",
         "tooltip": false
     },
 
