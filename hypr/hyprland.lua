@@ -22,6 +22,14 @@ hl.monitor({
     icc      = "/home/ahnet/.triton500.icm",
 })
 
+hl.monitor({
+    output   = "HDMI-A-1",
+    mode     = "preferred",
+    position = "auto",
+    scale    = 1,
+    mirror   = "eDP-1",
+})
+
 ---------------------
 ---- MY PROGRAMS ----
 ---------------------
@@ -253,7 +261,7 @@ hl.device({
 ---- KEYBINDINGS ----
 ---------------------
 
-local mainMod = "ALT" -- Sets "Windows" key as main modifier
+local mainMod = "SUPER" -- Sets "Windows" key as main modifier
 local secondMod = mainMod.. " + SHIFT"
 
 -- Apps
@@ -270,7 +278,7 @@ hl.bind(secondMod .. " + S", hl.dsp.exec_cmd("hyprshot -m region -o ~/Pictures/S
 -- Launcher
 hl.bind(mainMod .. " + Space", hl.dsp.exec_cmd(launcher))
 hl.bind(secondMod .. " + Space", hl.dsp.exec_cmd(runner))
-hl.bind(mainMod .. " + E", hl.dsp.exec_cmd(emojiLauncher))
+hl.bind(mainMod .. " + PERIOD", hl.dsp.exec_cmd(emojiLauncher))
 
 -- Windows Cycling
 hl.bind(mainMod.. " + TAB", hl.dsp.window.cycle_next())
