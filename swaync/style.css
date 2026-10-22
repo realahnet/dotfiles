@@ -103,41 +103,6 @@
   border: none;
 }
 
-.widget-mpris {
-  background: var(--noti-bg-darker);
-  border-radius: 10px;
-  border: 1px solid var(--noti-border-color);
-  margin: 8px 0px;
-  padding: 12px;
-  color: var(--text-color);
-}
-
-.widget-mpris-player {
-  background: transparent;
-}
-
-.widget-mpris-title {
-  font-weight: 600;
-  font-size: 14px;
-  color: #ffffff;
-}
-
-.widget-mpris-subtitle {
-  font-size: 12px;
-  color: var(--text-color-disabled);
-}
-
-.widget-mpris button {
-  background: transparent;
-  color: #ffffff;
-  border: none;
-  font-size: 16px;
-}
-
-.widget-mpris button:hover {
-  color: #888888;
-}
-
 .control-center .widget-notifications,
 .control-center .control-center-list,
 .control-center .notification-group,
@@ -164,6 +129,11 @@
   box-shadow: none;
   padding: 0px;
   margin: 6px 0px;
+}
+
+/* Floating notifications: keep the same inset on the right as above/below */
+.floating-notifications .notification-row {
+  margin: 6px 12px;
 }
 
 /* Notification Cards (Contrast Elevated Card, Full Width) */
