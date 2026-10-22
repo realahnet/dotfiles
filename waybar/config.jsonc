@@ -13,7 +13,7 @@
         "window-rewrite-default": "󰘔",
         "window-rewrite": {
             // Terminals & Browsers
-            "class<kitty>": "󰄛",
+            "class<kitty>": "󰆍",
             "class<Alacritty>": "",
             "class<google-chrome|com.google.Chrome>": "",
 
