@@ -18,7 +18,8 @@
             "class<google-chrome|com.google.Chrome>": "",
 
             // Code & Development
-            "class<code|Code|code-url-handler>": "󰨞",
+            "^class<(?:code|code-url-handler|com\\.microsoft\\.VSCode)>": "󰨞",
+            "^class<opencode>": "󰚩",
             "class<org.gnome.Meld>": "F",
             "class<micro>": "󰘦",
             "class<vim>": "",
@@ -67,7 +68,8 @@
             "class<nwg-look|nwg-displays|qt6ct>": "󰏘",
 
             // Universal Title Overrides
-            "title<.*youtube.*>": ""
+            "title<.*youtube.*>": "",
+            "title<.*opencode.*>": "󰚩"
         },
         "on-click": "activate"
     },
