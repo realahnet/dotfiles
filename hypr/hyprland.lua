@@ -47,11 +47,10 @@ local browser = "google-chrome-stable"
 
 hl.on("hyprland.start", function ()
    -- System needed
-   hl.exec_cmd("waybar")
-   hl.exec_cmd("swaync")
-   hl.exec_cmd("swayosd-server --top-margin 0.8")
+   hl.exec_cmd("dbus-update-activation-environment --systemd QT_QPA_PLATFORMTHEME=KDE")
+   -- Quickshell (bar, notifications, OSD, lock, idle); Hyprland-only, never Plasma.
+   hl.exec_cmd("qs -p ~/.config/quickshell")
    hl.exec_cmd("awww-daemon")
-   hl.exec_cmd("hypridle")
    hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
 
    -- USB Connection / Disconnection Notifier
@@ -82,7 +81,7 @@ hl.env("XCURSOR_THEME", "phinger-cursors-dark")
 hl.env("XCURSOR_SIZE", "37")
 hl.env("HYPRCURSOR_THEME", "phinger-cursors-dark")
 hl.env("HYPRCURSOR_SIZE", "37")
-hl.env("QT_QPA_PLATFORMTHEME", "qt6ct")
+hl.env("QT_QPA_PLATFORMTHEME", "KDE")
 hl.env("GTK_THEME", "Breeze-Dark")
 
 -----------------------
@@ -270,7 +269,7 @@ hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 
 -- Screen Lock
-hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("hyprlock"))
+hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("qs -p ~/.config/quickshell ipc call lock lock"))
 
 -- Screenshot
 hl.bind(secondMod .. " + S", hl.dsp.exec_cmd("hyprshot -m region -o ~/Pictures/Screenshots"))
@@ -326,12 +325,18 @@ hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Laptop multimedia keys for volume and LCD brightness
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("swayosd-client --output-volume raise --max-volume 150"), { locked = true, repeating = false })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("swayosd-client --output-volume lower --max-volume 150"),      { locked = true, repeating = false })
-hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle"),     { locked = true, repeating = false })
-hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd("swayosd-client --input-volume mute-toggle"),   { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("swayosd-client --min-brightness 0 --brightness raise"),                  { locked = true, repeating = false })
-hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("swayosd-client --min-brightness 0 --brightness lower"),                  { locked = true, repeating = false })
+hl.unbind("XF86AudioRaiseVolume")
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%+"), { locked = true, repeating = true })
+hl.unbind("XF86AudioLowerVolume")
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 5%-"),      { locked = true, repeating = true })
+hl.unbind("XF86AudioMute")
+hl.bind("XF86AudioMute",        hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),     { locked = true, repeating = false })
+hl.unbind("XF86AudioMicMute")
+hl.bind("XF86AudioMicMute",     hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),   { locked = true, repeating = false })
+hl.unbind("XF86MonBrightnessUp")
+hl.bind("XF86MonBrightnessUp",  hl.dsp.exec_cmd("brightnessctl set 5%+"),                  { locked = true, repeating = true })
+hl.unbind("XF86MonBrightnessDown")
+hl.bind("XF86MonBrightnessDown",hl.dsp.exec_cmd("brightnessctl set 5%-"),                  { locked = true, repeating = true })
 
 -- Laptop multimedia keys for handling multiple monitors
 hl.bind(mainMod.. " + P", hl.dsp.exec_cmd("nwg-displays"))
@@ -373,8 +378,8 @@ hl.window_rule({
 
 -- Layer rules
 hl.layer_rule({
-    name  = "blur-swaync",
-    match = { namespace = "^swaync-.*" },
+    name  = "blur-quickshell",
+    match = { namespace = "^quickshell-.*" },
     blur  = true,
     ignore_alpha = 0.5,
 })
@@ -387,3 +392,9 @@ hl.window_rule({
     move  = "20 monitor_h-120",
     float = true,
 })
+
+-- Quickshell lock screen submap: disables all normal keybinds while locked.
+-- A submap needs at least one bind to be registered; this one is harmless.
+hl.define_submap("locked", function()
+   hl.bind("SUPER + ALT + SHIFT + F12", hl.dsp.exec_cmd("true"))
+end)

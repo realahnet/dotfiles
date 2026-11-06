@@ -16,7 +16,7 @@ This rice is nothing special. Just a minimal monochrome themed rice that I am st
 This guide details how to install and configure this Hyprland dotfiles setup on your system.
 
 > [!WARNING]
-> **Backup Warning:** Make sure to backup your current configurations (`~/.config/hypr`, `~/.config/waybar`, etc.) before running the installation script to avoid overwriting your personal settings.
+> **Backup Warning:** Make sure to backup your current configurations (`~/.config/hypr`, `~/.config/quickshell`, etc.) before running the installation script to avoid overwriting your personal settings.
 
 > [!WARNING]
 >*THE **MAX POSSIBLE VOLUME** IS SET TO **150%!** PLEASE EDIT `hyprland.lua` and remove the `"--max-volume 150"` parameter from volume raise and lower keybinds. Otherwise **your speakers** would probably **explode**?
@@ -79,7 +79,7 @@ Make sure to read the keybind section in hyprland.lua for all the relevant keybi
 | `Alt + T` | Opens default terminal (`kitty`) |
 | `Alt + F` | Opens default file manager (`nemo`) |
 | `Alt + B` | Opens browser (`google-chrome-stable`) |
-| `Alt + M` | Locks the screen (`hyprlock`) |
+| `Alt + M` | Locks the screen (`Quickshell`) |
 | `Alt + Shift + S` | Captures region screenshot (`hyprshot`) |
 | `Alt + Space` | Opens application launcher (`rofi`) |
 | `Alt + .` | Opens emoji picker (`rofi`) |

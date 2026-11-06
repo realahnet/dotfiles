@@ -2,9 +2,7 @@ alsa-utils
 awesome-terminal-fonts
 cantarell-fonts
 gnome-themes-extra
-hypridle
 hyprland
-hyprlock
 hyprpolkitagent
 hyprshot
 kde-gtk-config
@@ -14,13 +12,11 @@ playerctl
 polkit-gnome
 powerprofilesctl
 qt6ct
+quickshell
 rofi-emoji
-swaync
-swayosd
 ttf-jetbrains-mono-nerd
 ttf-montserrat
 ttf-opensans
 upower
-waybar
 wireplumber
 wtype

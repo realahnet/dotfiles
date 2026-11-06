@@ -1,0 +1,3 @@
+# Quickshell lock screen.
+# Password-only, no faillock and no artificial delay between attempts.
+auth required pam_unix.so nodelay

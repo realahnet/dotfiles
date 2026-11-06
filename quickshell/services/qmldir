@@ -1,0 +1,6 @@
+singleton Theme 1.0 Theme.qml
+singleton ShellState 1.0 ShellState.qml
+singleton AppIcons 1.0 AppIcons.qml
+singleton Weather 1.0 Weather.qml
+singleton Notifications 1.0 Notifications.qml
+singleton LockState 1.0 LockState.qml
