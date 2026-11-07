@@ -289,21 +289,19 @@ PanelWindow {
                     elide: Text.ElideRight
                 }
 
-                StyledText {
+                ScrollingText {
                     Layout.fillWidth: true
                     text: root.title
                     color: Theme.white
-                    font.pixelSize: 17
-                    font.weight: Font.DemiBold
-                    elide: Text.ElideRight
+                    pixelSize: 17
+                    fontWeight: Font.DemiBold
                 }
 
-                StyledText {
+                ScrollingText {
                     Layout.fillWidth: true
                     text: root.artist
                     color: Theme.fgMuted
-                    font.pixelSize: 15
-                    elide: Text.ElideRight
+                    pixelSize: 15
                 }
 
                 Item { Layout.fillHeight: true }
