@@ -22,7 +22,9 @@ Item {
     readonly property rect pillRect: pill ? Qt.rect(sceneX(pill), sceneY(pill), pill.width, pill.height) : Qt.rect(0, 0, 0, 0)
     readonly property bool hasPlayer: player !== null
     readonly property bool isYouTubeNow: player ? isYT(player) : false
-    property real shrink: player ? 0 : 1
+    property real shrink: 1
+
+    Component.onCompleted: if (hasPlayer) shrink = 0
 
     onHasPlayerChanged: {
         shrinkAnim.stop();
