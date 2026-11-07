@@ -49,6 +49,8 @@ quickshell/
 │   ├── TrayMenu.qml             # themed tray context menu
 │   ├── TrayMenuCatcher.qml      # closes the menu on outside clicks
 │   ├── BarAudio.qml             # PipeWire volume
+│   ├── BarMedia.qml             # media pill that morphs into a player card
+│   ├── MediaCard.qml            # art, seek bar, controls, art colour sampling
 │   ├── BarBattery.qml           # UPower battery
 │   ├── BarClock.qml             # clock + date
 │   ├── BarNotificationButton.qml# bell -> notification center

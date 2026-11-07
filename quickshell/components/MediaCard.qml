@@ -1,0 +1,499 @@
+import Quickshell
+import Quickshell.Wayland
+import QtQuick
+import QtQuick.Effects
+import QtQuick.Layouts
+import "../services"
+
+// Expanded media card. The window is a fixed transparent surface covering both
+// the bar pill and the card's final position; one rectangle morphs between the
+// two, so the pill appears to grow out of the bar instead of popping open.
+PanelWindow {
+    id: root
+    property Item trigger: null
+    property var barWindow: null
+    property var player: null
+    property bool shown: false
+    property color accent: Theme.fgMuted
+    property real morph: shown ? 1 : 0
+
+    readonly property int cardWidth: 380
+    readonly property int cardHeight: 152
+    readonly property int cardGap: 6
+    readonly property real contentAmount: Math.max(0, Math.min(1, (morph - 0.3) / 0.5))
+
+    property rect triggerRect: Qt.rect(0, 0, 0, 0)
+
+    readonly property int screenWidth: screen ? screen.width : 1920
+
+    readonly property rect cardRect: {
+        const cx = triggerRect.x + triggerRect.width / 2 - cardWidth / 2;
+        const x = Math.max(8, Math.min(cx, screenWidth - cardWidth - 8));
+        return Qt.rect(Math.round(x), Theme.barHeight + cardGap, cardWidth, cardHeight);
+    }
+
+    readonly property rect unionRect: {
+        const p = triggerRect, c = cardRect;
+        const x = Math.min(p.x, c.x);
+        const y = Math.min(p.y, c.y);
+        return Qt.rect(x, y,
+                       Math.max(p.x + p.width, c.x + c.width) - x,
+                       Math.max(p.y + p.height, c.y + c.height) - y);
+    }
+
+    readonly property rect morphRect: {
+        const p = triggerRect, c = cardRect, u = unionRect, t = morph;
+        return Qt.rect(
+            (p.x - u.x) + ((c.x - u.x) - (p.x - u.x)) * t,
+            (p.y - u.y) + ((c.y - u.y) - (p.y - u.y)) * t,
+            p.width + (c.width - p.width) * t,
+            p.height + (c.height - p.height) * t);
+    }
+
+    Behavior on morph {
+        NumberAnimation {
+            duration: root.shown ? 260 : 180
+            easing.type: root.shown ? Easing.OutCubic : Easing.InCubic
+        }
+    }
+
+    screen: barWindow ? barWindow.screen : null
+    visible: (shown || morph > 0.004) && !LockState.locked
+    color: "transparent"
+    anchors.top: true
+    anchors.left: true
+    margins.left: Math.round(unionRect.x)
+    margins.top: Math.round(unionRect.y) - Theme.barHeight
+    implicitWidth: Math.max(1, Math.round(unionRect.width))
+    implicitHeight: Math.max(1, Math.round(unionRect.height))
+    exclusiveZone: 0
+    WlrLayershell.namespace: "quickshell-media"
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
+
+    BackgroundEffect.blurRegion: Region {
+        x: shell.x
+        y: Math.max(shell.y, Theme.barHeight)
+        width: shell.width
+        height: Math.max(0, shell.y + shell.height - Math.max(shell.y, Theme.barHeight))
+        radius: shell.radius
+    }
+
+    onPlayerChanged: if (!player) root.shown = false
+
+    Connections {
+        target: LockState
+        function onLockedChanged() { if (LockState.locked) root.shown = false }
+    }
+
+    Timer {
+        id: closeTimer
+        interval: 240
+        onTriggered: if (!windowHover.containsMouse) root.shown = false
+    }
+
+    MouseArea {
+        id: windowHover
+        anchors.fill: parent
+        hoverEnabled: true
+        acceptedButtons: Qt.NoButton
+        onEntered: { closeTimer.stop(); root.shown = true; }
+        onExited: closeTimer.restart()
+    }
+
+    Rectangle {
+        id: shell
+        x: root.morphRect.x
+        y: root.morphRect.y
+        width: root.morphRect.width
+        height: root.morphRect.height
+        radius: Theme.radiusSmall + (Theme.radius - Theme.radiusSmall) * root.morph
+        color: root.mix(Qt.rgba(0, 0, 0, 0.22), Theme.panelBg, root.morph)
+        border.width: 1
+        border.color: Qt.rgba(1, 1, 1, 0.15 * root.contentAmount)
+        clip: true
+
+        // Collapsed pill contents: app icon + play/pause, faded out early.
+        Row {
+            id: compact
+            anchors.left: parent.left
+            anchors.leftMargin: 9
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 7
+            opacity: Math.max(0, 1 - root.morph * 4)
+
+            Item {
+                width: 15
+                height: 15
+                Image {
+                    id: appIcon
+                    anchors.fill: parent
+                    source: root.appIconSource
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                    visible: source !== ""
+                    onStatusChanged: if (status === Image.Error) source = ""
+                }
+                StyledText {
+                    anchors.centerIn: parent
+                    visible: appIcon.source === ""
+                    text: "󰎈"
+                    font.pixelSize: 13
+                    color: Theme.fgMuted
+                }
+            }
+
+            Item {
+                width: 14
+                height: 16
+                StyledText {
+                    anchors.centerIn: parent
+                    text: root.isPlaying ? "󰏤" : "󰐊"
+                    font.pixelSize: 14
+                    color: Theme.fg
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.player !== null && root.player.canTogglePlaying
+                    onClicked: root.player.togglePlaying()
+                }
+            }
+        }
+
+        // Expanded contents, clipped to the growing rectangle.
+        Item {
+            id: full
+            width: root.cardWidth
+            height: root.cardHeight
+            opacity: root.contentAmount
+
+            Item {
+                id: artFrame
+                x: 14
+                y: 14
+                width: 124
+                height: 124
+
+                Canvas {
+                    id: sampler
+                    width: 24
+                    height: 24
+                    onPaint: root.sampleAccent()
+                }
+
+                Image {
+                    id: art
+                    anchors.fill: parent
+                    source: root.artSource
+                    fillMode: Image.PreserveAspectCrop
+                    smooth: true
+                    asynchronous: true
+                    visible: false
+                    onStatusChanged: if (status === Image.Ready) sampler.requestPaint()
+                }
+
+                Rectangle {
+                    id: artMask
+                    anchors.fill: parent
+                    radius: 6
+                    visible: false
+                    layer.enabled: true
+                }
+
+                MultiEffect {
+                    anchors.fill: parent
+                    source: art
+                    maskEnabled: true
+                    maskSource: artMask
+                    visible: art.status === Image.Ready
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 6
+                    color: Theme.elevated
+                    visible: art.status !== Image.Ready
+                }
+
+                StyledText {
+                    anchors.centerIn: parent
+                    visible: art.status !== Image.Ready
+                    text: "󰎈"
+                    font.pixelSize: 34
+                    color: Theme.fgMuted
+                }
+
+                Rectangle {
+                    anchors.fill: parent
+                    radius: 6
+                    color: "transparent"
+                    border.width: 1
+                    border.color: Qt.rgba(1, 1, 1, 0.08)
+                }
+            }
+
+            ColumnLayout {
+                x: 152
+                y: 14
+                width: root.cardWidth - 152 - 14
+                height: 124
+                spacing: 3
+
+                StyledText {
+                    Layout.fillWidth: true
+                    text: root.identity.toUpperCase()
+                    color: Theme.fgMuted
+                    font.pixelSize: 10
+                    font.letterSpacing: 1.2
+                    elide: Text.ElideRight
+                }
+
+                StyledText {
+                    Layout.fillWidth: true
+                    text: root.title
+                    color: Theme.white
+                    font.pixelSize: 15
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
+                }
+
+                StyledText {
+                    Layout.fillWidth: true
+                    text: root.artist
+                    color: Theme.fgMuted
+                    font.pixelSize: 12
+                    elide: Text.ElideRight
+                }
+
+                Item { Layout.fillHeight: true }
+
+                SeekBar {
+                    id: seek
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 14
+                    mediaPlayer: root.player
+                    accentColor: root.accent
+                }
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 6
+
+                    StyledText {
+                        text: seek ? root.fmt(seek.displayPos) : "0:00"
+                        color: Theme.fgMuted
+                        font.pixelSize: 10
+                    }
+                    Item { Layout.fillWidth: true }
+                    StyledText {
+                        text: root.fmt(root.player ? root.player.length : 0)
+                        color: Theme.fgMuted
+                        font.pixelSize: 10
+                    }
+                }
+
+                RowLayout {
+                    Layout.alignment: Qt.AlignHCenter
+                    spacing: 16
+
+                    Item {
+                        width: 22
+                        height: 22
+                        StyledText {
+                            anchors.centerIn: parent
+                            text: "󰒮"
+                            font.pixelSize: 16
+                            color: root.player && root.player.canGoPrevious ? Theme.fg : Theme.fgMuted
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: root.player !== null && root.player.canGoPrevious
+                            onClicked: root.player.previous()
+                        }
+                    }
+
+                    Item {
+                        width: 26
+                        height: 26
+                        StyledText {
+                            anchors.centerIn: parent
+                            text: root.isPlaying ? "󰏤" : "󰐊"
+                            font.pixelSize: 21
+                            color: Theme.white
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: root.player !== null && root.player.canTogglePlaying
+                            onClicked: root.player.togglePlaying()
+                        }
+                    }
+
+                    Item {
+                        width: 22
+                        height: 22
+                        StyledText {
+                            anchors.centerIn: parent
+                            text: "󰒭"
+                            font.pixelSize: 16
+                            color: root.player && root.player.canGoNext ? Theme.fg : Theme.fgMuted
+                        }
+                        MouseArea {
+                            anchors.fill: parent
+                            enabled: root.player !== null && root.player.canGoNext
+                            onClicked: root.player.next()
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    component SeekBar: Item {
+        id: bar
+        property var mediaPlayer: null
+        property color accentColor: Theme.fgMuted
+        property int tick: 0
+        property bool dragging: false
+        property real dragValue: 0
+        readonly property real maxLength: mediaPlayer ? mediaPlayer.length : 0
+        implicitHeight: 14
+        readonly property real displayPos: {
+            bar.tick;
+            if (bar.dragging) return bar.dragValue;
+            return mediaPlayer ? Math.min(Math.max(0, mediaPlayer.position), bar.maxLength) : 0;
+        }
+        readonly property real ratio: bar.maxLength > 0
+            ? Math.max(0, Math.min(1, bar.displayPos / bar.maxLength)) : 0
+        readonly property bool seekable: mediaPlayer !== null && mediaPlayer.canSeek
+            && mediaPlayer.positionSupported && bar.maxLength > 0
+        function valueAt(px) { return Math.max(0, Math.min(1, px / width)) * bar.maxLength; }
+        Timer {
+            interval: 250
+            repeat: true
+            running: !bar.dragging && bar.mediaPlayer !== null && bar.mediaPlayer.isPlaying
+            onTriggered: bar.tick++
+        }
+        Rectangle {
+            id: track
+            anchors.verticalCenter: parent.verticalCenter
+            width: parent.width
+            height: 4
+            radius: 2
+            color: Qt.rgba(1, 1, 1, 0.12)
+        }
+        Rectangle {
+            id: fill
+            anchors.verticalCenter: parent.verticalCenter
+            width: bar.ratio * track.width
+            height: 4
+            radius: 2
+            color: bar.accentColor
+        }
+        Rectangle {
+            id: thumb
+            x: Math.max(0, Math.min(track.width - width, fill.width - width / 2))
+            anchors.verticalCenter: parent.verticalCenter
+            width: 10
+            height: 10
+            radius: 5
+            color: bar.accentColor
+            visible: bar.seekable
+        }
+        MouseArea {
+            anchors.fill: parent
+            enabled: bar.seekable
+            onPressed: (m) => { bar.dragging = true; bar.dragValue = bar.valueAt(m.x); }
+            onPositionChanged: (m) => { if (bar.dragging) bar.dragValue = bar.valueAt(m.x); }
+            onReleased: (m) => {
+                if (!bar.dragging) return;
+                bar.dragValue = bar.valueAt(m.x);
+                bar.mediaPlayer.position = bar.dragValue;
+                bar.dragging = false;
+            }
+            onCanceled: bar.dragging = false
+        }
+    }
+
+    readonly property bool isPlaying: player ? player.isPlaying : false
+    readonly property string title: player ? (player.trackTitle || "") : ""
+    readonly property string artist: player ? (player.trackArtist || "") : ""
+    readonly property string identity: player ? (player.identity || "") : ""
+
+    readonly property string artSource: {
+        if (!player) return "";
+        const u = player.trackArtUrl || "";
+        if (!u) return "";
+        return u.charAt(0) === "/" ? "file://" + u : u;
+    }
+
+    readonly property string appIconSource: {
+        if (!player) return "";
+        const names = [];
+        if (player.desktopEntry) names.push(player.desktopEntry);
+        if (player.identity) names.push(String(player.identity).toLowerCase());
+        for (let i = 0; i < names.length; ++i) {
+            const path = Quickshell.iconPath(names[i], true);
+            if (path) return path;
+        }
+        return "";
+    }
+
+    function mix(a, b, t) {
+        return Qt.rgba(a.r + (b.r - a.r) * t,
+                       a.g + (b.g - a.g) * t,
+                       a.b + (b.b - a.b) * t,
+                       a.a + (b.a - a.a) * t);
+    }
+
+    function fmt(seconds) {
+        if (!isFinite(seconds) || seconds < 0) return "0:00";
+        const total = Math.floor(seconds);
+        const h = Math.floor(total / 3600);
+        const m = Math.floor((total % 3600) / 60);
+        const s = total % 60;
+        const two = (n) => (n < 10 ? "0" : "") + n;
+        return h > 0 ? h + ":" + two(m) + ":" + two(s) : m + ":" + two(s);
+    }
+
+    function sampleAccent() {
+        if (!art || art.status !== Image.Ready) { root.accent = Theme.fgMuted; return; }
+        let data;
+        try {
+            const ctx = sampler.getContext("2d");
+            ctx.clearRect(0, 0, sampler.width, sampler.height);
+            ctx.drawImage(art, 0, 0, sampler.width, sampler.height);
+            data = ctx.getImageData(0, 0, sampler.width, sampler.height).data;
+        } catch (e) { root.accent = Theme.fgMuted; return; }
+        const n = 24, br = [], bg = [], bb = [], bw = [];
+        for (let k = 0; k < n; ++k) { br.push(0); bg.push(0); bb.push(0); bw.push(0); }
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] < 128) continue;
+            const R = data[i] / 255, G = data[i + 1] / 255, B = data[i + 2] / 255;
+            const mx = Math.max(R, G, B), mn = Math.min(R, G, B), d = mx - mn;
+            const sat = mx <= 0 ? 0 : d / mx;
+            const weight = sat * sat * (0.35 + mx * 0.65);
+            if (weight <= 0.0001) continue;
+            let h = 0;
+            if (d > 0) {
+                if (mx === R) h = ((G - B) / d) % 6;
+                else if (mx === G) h = (B - R) / d + 2;
+                else h = (R - G) / d + 4;
+                h *= 60; if (h < 0) h += 360;
+            }
+            const k = Math.floor(h / 15) % n;
+            br[k] += R * weight; bg[k] += G * weight; bb[k] += B * weight; bw[k] += weight;
+        }
+        let best = 0;
+        for (let k = 1; k < n; ++k) if (bw[k] > bw[best]) best = k;
+        if (bw[best] <= 0) { root.accent = Theme.fgMuted; return; }
+        let r = br[best] / bw[best], g = bg[best] / bw[best], b = bb[best] / bw[best];
+        const avg = (r + g + b) / 3;
+        r = avg + (r - avg) * 1.4;
+        g = avg + (g - avg) * 1.4;
+        b = avg + (b - avg) * 1.4;
+        const hi = Math.max(r, g, b);
+        if (hi > 0) { const k = Math.min(1.2, 0.9 / hi); r *= k; g *= k; b *= k; }
+        const clamp = (v) => Math.max(0, Math.min(1, v));
+        root.accent = Qt.rgba(clamp(r), clamp(g), clamp(b), 1);
+    }
+}

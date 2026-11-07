@@ -100,6 +100,13 @@ Scope {
                         screenInfo: barWindow.screen
                     }
                 }
+
+                BarMedia {
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.verticalCenter: parent.verticalCenter
+                    barWindow: barWindow
+                    z: 1
+                }
             }
 
             // While a tray menu is open, clicks elsewhere on the bar close it.
