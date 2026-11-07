@@ -14,7 +14,7 @@ Item {
             if (ps[i].isPlaying) return ps[i];
         for (let i = 0; i < ps.length; ++i)
             if (ps[i].playbackState !== MprisPlaybackState.Stopped) return ps[i];
-        return ps[0];
+        return null;
     }
 
     function sceneX(i) { let v = 0; while (i) { v += i.x; i = i.parent; } return v; }
