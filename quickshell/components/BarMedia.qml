@@ -8,8 +8,10 @@ Item {
     property var barWindow: null
 
     readonly property var player: {
-        const ps = Mpris.players.values;
-        if (!ps || ps.length === 0) return null;
+        const all = Mpris.players.values;
+        if (!all || all.length === 0) return null;
+        const ps = all.filter(p => String(p.dbusName || "").toLowerCase().indexOf("plasma-browser-integration") === -1);
+        if (ps.length === 0) return null;
         for (let i = 0; i < ps.length; ++i)
             if (ps[i].isPlaying) return ps[i];
         for (let i = 0; i < ps.length; ++i)
