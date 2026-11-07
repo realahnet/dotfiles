@@ -18,6 +18,7 @@ PanelWindow {
     property bool closing: false
     property real reveal: 0
     property bool failed: false
+    property bool authenticating: false
     property string errorText: ""
     property bool iconFailed: false
 
@@ -52,6 +53,7 @@ PanelWindow {
     onFlowChanged: {
         if (flow) {
             closing = false;
+            authenticating = false;
             failed = false;
             errorText = "";
             iconFailed = false;
@@ -61,6 +63,7 @@ PanelWindow {
             focusTimer.restart();
         } else {
             closing = true;
+            authenticating = false;
             reveal = 0;
             input.text = "";
             hideTimer.restart();
@@ -84,7 +87,7 @@ PanelWindow {
     Timer {
         id: focusGuard
         interval: 250
-        running: root.active
+        running: root.active && !root.authenticating
         repeat: true
         onTriggered: if (!input.activeFocus) input.forceActiveFocus()
     }
@@ -99,22 +102,26 @@ PanelWindow {
     Connections {
         target: root.flow
         function onAuthenticationFailed() {
+            root.authenticating = false;
             root.failed = true;
             root.errorText = "wrong password";
             input.text = "";
             focusTimer.restart();
         }
         function onAuthenticationSucceeded() {
+            root.authenticating = false;
             root.failed = false;
             root.errorText = "";
         }
     }
 
     function submit() {
-        if (!root.flow || !root.flow.isResponseRequired) return;
+        if (!root.flow || !root.flow.isResponseRequired || root.authenticating) return;
         if (input.text.length === 0) return;
+        root.authenticating = true;
+        root.failed = false;
+        root.errorText = "";
         root.flow.submit(input.text);
-        input.text = "";
     }
 
     function cancel() {
@@ -294,6 +301,7 @@ PanelWindow {
                     anchors.leftMargin: 14
                     anchors.rightMargin: 14
                     focus: true
+                    enabled: !root.authenticating
                     echoMode: TextInput.Password
                     color: "transparent"
                     selectionColor: "transparent"
@@ -319,7 +327,8 @@ PanelWindow {
                 Layout.fillWidth: true
                 horizontalAlignment: Text.AlignHCenter
                 visible: text !== ""
-                text: root.flow ? root.flow.supplementaryMessage : ""
+                text: root.authenticating ? "Authenticating..."
+                    : (root.flow ? root.flow.supplementaryMessage : "")
                 color: root.flow && root.flow.supplementaryIsError
                     ? Qt.rgba(204 / 255, 34 / 255, 34 / 255, 0.9)
                     : Theme.fgMuted

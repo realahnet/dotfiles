@@ -14,6 +14,9 @@ ln -sf ~/dotfiles/quickshell/* ~/.config/quickshell
 ln -sf ~/dotfiles/wallpapers/* ~/.config/wallpapers/
 ln -sf ~/dotfiles/kitty/* ~/.config/kitty
 
+echo "=== Installing Polkit PAM config ==="
+sudo install -Dm644 ~/dotfiles/quickshell/pam.d/polkit-1 /etc/pam.d/polkit-1
+
 echo "=== Enabling System Dark Theme Preferences ==="
 gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark'
 gsettings set org.gnome.desktop.interface gtk-theme 'Adwaita-dark'
