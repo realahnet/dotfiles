@@ -26,8 +26,11 @@ Item {
 
     onHasPlayerChanged: {
         shrinkAnim.stop();
-        if (hasPlayer) shrink = 0;
-        else if (shrink < 0.999) {
+        growAnim.stop();
+        if (hasPlayer) {
+            growAnim.from = shrink;
+            growAnim.restart();
+        } else if (shrink < 0.999) {
             if (card && card.morph > 0.01) shrink = 1;
             else shrinkAnim.restart();
         }
@@ -45,6 +48,15 @@ Item {
         to: 1
         duration: 300
         easing.type: Easing.InQuad
+    }
+
+    NumberAnimation {
+        id: growAnim
+        target: root
+        property: "shrink"
+        to: 0
+        duration: 300
+        easing.type: Easing.OutQuad
     }
 
     property string lastIcon: ""
