@@ -5,37 +5,34 @@ import Quickshell
 Singleton {
     id: root
 
-    function canSeek(player) {
-        return !!player && player.canSeek && player.positionSupported;
+    function canPrevious(player, youtube) {
+        return !!player && (player.canGoPrevious || youtube);
     }
 
-    function canPrevious(player) {
-        return !!player && (player.canGoPrevious || root.canSeek(player));
+    function canNext(player, youtube) {
+        return !!player && (player.canGoNext || youtube);
     }
 
-    function canNext(player) {
-        return !!player && (player.canGoNext || root.canSeek(player));
-    }
-
-    function previous(player) {
+    function previous(player, youtube) {
         if (!player) return;
         if (player.canGoPrevious) {
             player.previous();
             return;
         }
-        if (root.canSeek(player))
-            player.position = 0;
+        if (youtube) root.sendYouTubeShortcut("P");
     }
 
-    function next(player) {
+    function next(player, youtube) {
         if (!player) return;
         if (player.canGoNext) {
             player.next();
             return;
         }
-        if (!root.canSeek(player)) return;
-        const target = (player.position || 0) + 10;
-        const length = player.length || 0;
-        player.position = length > 0 ? Math.min(target, length) : target;
+        if (youtube) root.sendYouTubeShortcut("N");
+    }
+
+    function sendYouTubeShortcut(key) {
+        Quickshell.execDetached(["hyprctl", "eval",
+            'hl.dispatch(hl.dsp.send_shortcut({ mods = "SHIFT", key = "' + key + '", window = "class:google-chrome" }))']);
     }
 }

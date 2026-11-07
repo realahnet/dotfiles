@@ -158,12 +158,12 @@ PanelWindow {
                     anchors.centerIn: parent
                     text: "󰒮"
                     font.pixelSize: 14
-                    color: MediaActions.canPrevious(root.player) ? Theme.fg : Theme.fgMuted
+                    color: MediaActions.canPrevious(root.player, root.isYouTube) ? Theme.fg : Theme.fgMuted
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: MediaActions.canPrevious(root.player)
-                    onClicked: MediaActions.previous(root.player)
+                    enabled: MediaActions.canPrevious(root.player, root.isYouTube)
+                    onClicked: MediaActions.previous(root.player, root.isYouTube)
                 }
             }
             Item {
@@ -188,12 +188,12 @@ PanelWindow {
                     anchors.centerIn: parent
                     text: "󰒭"
                     font.pixelSize: 14
-                    color: MediaActions.canNext(root.player) ? Theme.fg : Theme.fgMuted
+                    color: MediaActions.canNext(root.player, root.isYouTube) ? Theme.fg : Theme.fgMuted
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: MediaActions.canNext(root.player)
-                    onClicked: MediaActions.next(root.player)
+                    enabled: MediaActions.canNext(root.player, root.isYouTube)
+                    onClicked: MediaActions.next(root.player, root.isYouTube)
                 }
             }
         }
@@ -344,12 +344,12 @@ PanelWindow {
                             anchors.centerIn: parent
                             text: "󰒮"
                             font.pixelSize: 17
-                            color: MediaActions.canPrevious(root.player) ? Theme.fg : Theme.fgMuted
+                            color: MediaActions.canPrevious(root.player, root.isYouTube) ? Theme.fg : Theme.fgMuted
                         }
                         MouseArea {
                             anchors.fill: parent
-                            enabled: MediaActions.canPrevious(root.player)
-                            onClicked: MediaActions.previous(root.player)
+                            enabled: MediaActions.canPrevious(root.player, root.isYouTube)
+                            onClicked: MediaActions.previous(root.player, root.isYouTube)
                         }
                     }
 
@@ -376,12 +376,12 @@ PanelWindow {
                             anchors.centerIn: parent
                             text: "󰒭"
                             font.pixelSize: 17
-                            color: MediaActions.canNext(root.player) ? Theme.fg : Theme.fgMuted
+                            color: MediaActions.canNext(root.player, root.isYouTube) ? Theme.fg : Theme.fgMuted
                         }
                         MouseArea {
                             anchors.fill: parent
-                            enabled: MediaActions.canNext(root.player)
-                            onClicked: MediaActions.next(root.player)
+                            enabled: MediaActions.canNext(root.player, root.isYouTube)
+                            onClicked: MediaActions.next(root.player, root.isYouTube)
                         }
                     }
                 }
