@@ -121,6 +121,23 @@ PanelWindow {
         if (root.flow) root.flow.cancelAuthenticationRequest();
     }
 
+    function recenterDots() {
+        if (!dotsRow || !dotsRow.parent) return;
+        const target = (dotsRow.parent.width - dotsRow.width) / 2;
+        centerAnim.stop();
+        centerAnim.from = dotsRow.x;
+        centerAnim.to = target;
+        centerAnim.start();
+    }
+
+    NumberAnimation {
+        id: centerAnim
+        target: dotsRow
+        property: "x"
+        duration: 140
+        easing.type: Easing.OutQuad
+    }
+
     Item {
         id: card
         anchors.fill: parent
@@ -207,7 +224,7 @@ PanelWindow {
                         ? Qt.rgba(204 / 255, 34 / 255, 34 / 255, 0.65)
                         : Qt.rgba(1, 1, 1, 0.2)
                     clip: true
-                    Behavior on border.color { ColorAnimation { duration: 200 } }
+                    Behavior on border.color { ColorAnimation { duration: 250 } }
                 }
 
                 Item {
@@ -218,19 +235,38 @@ PanelWindow {
                     clip: true
 
                     Row {
-                        anchors.centerIn: parent
+                        id: dotsRow
+                        anchors.verticalCenter: parent.verticalCenter
+                        x: 0
                         spacing: 7
-                        scale: Math.min(1, dotsArea.width / Math.max(1, width))
+                        scale: Math.min(1, parent.width / Math.max(1, width))
                         transformOrigin: Item.Center
                         opacity: (root.failed || input.text.length === 0) ? 0 : 1
+
+                        Component.onCompleted: {
+                            x = parent.width / 2;
+                            root.recenterDots();
+                        }
+                        onWidthChanged: root.recenterDots()
 
                         Repeater {
                             model: input.text.length
                             delegate: Rectangle {
-                                width: 13
-                                height: 13
-                                radius: 6.5
+                                id: orb
+                                width: 14
+                                height: 14
+                                radius: 7
                                 color: Theme.white
+                                scale: 0.75
+                                Component.onCompleted: orbScaleIn.start()
+                                NumberAnimation {
+                                    id: orbScaleIn
+                                    target: orb
+                                    property: "scale"
+                                    to: 1
+                                    duration: 180
+                                    easing.type: Easing.OutCubic
+                                }
                             }
                         }
                     }
@@ -238,7 +274,6 @@ PanelWindow {
 
                 StyledText {
                     anchors.centerIn: parent
-                    width: parent.width - 36
                     text: root.failed
                         ? (root.errorText || "wrong password")
                         : (root.flow && root.flow.inputPrompt ? root.flow.inputPrompt : "Password...")
@@ -248,17 +283,16 @@ PanelWindow {
                     font.pixelSize: 13
                     font.italic: true
                     font.weight: Font.Normal
-                    horizontalAlignment: Text.AlignHCenter
-                    elide: Text.ElideRight
+                    font.family: Theme.fontFamily
                     opacity: (root.failed || input.text.length === 0) ? 1 : 0
-                    Behavior on opacity { NumberAnimation { duration: 180 } }
+                    Behavior on opacity { NumberAnimation { duration: 220 } }
                 }
 
                 TextInput {
                     id: input
                     anchors.fill: parent
-                    anchors.leftMargin: 18
-                    anchors.rightMargin: 18
+                    anchors.leftMargin: 14
+                    anchors.rightMargin: 14
                     focus: true
                     echoMode: TextInput.Password
                     color: "transparent"
