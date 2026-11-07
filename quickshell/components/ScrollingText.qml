@@ -20,7 +20,7 @@ Item {
     implicitHeight: label.implicitHeight
     clip: true
 
-    readonly property bool scrolling: label.implicitWidth > width
+    readonly property bool scrolling: label.implicitWidth > width + 1
 
     Row {
         id: row
@@ -64,8 +64,10 @@ Item {
     }
 
     function restart() {
+        marquee.stop();
         row.x = 0;
-        marquee.restart();
+        if (scrolling && visible)
+            marquee.start();
     }
 
     onTextChanged: restart()
