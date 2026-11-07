@@ -25,9 +25,22 @@ Item {
     implicitWidth: pill.width
     implicitHeight: Theme.barHeight
 
+    readonly property bool chromePlayer: {
+        if (!player) return false;
+        const s = (String(player.identity || "") + " " + String(player.desktopEntry || "")).toLowerCase();
+        return s.indexOf("chrome") !== -1 || s.indexOf("chromium") !== -1;
+    }
+
+    readonly property bool isYouTube: {
+        if (!player || !root.chromePlayer) return false;
+        const hay = (String(player.trackTitle || "") + " " + String(player.trackAlbum || "") + " " + String(player.trackArtUrl || "")).toLowerCase();
+        return hay.indexOf("youtube") !== -1 || hay.indexOf("ytimg") !== -1;
+    }
+
     readonly property string appIconSource: {
         if (!player) return "";
         const names = [];
+        if (root.chromePlayer) { names.push("google-chrome-stable"); names.push("google-chrome"); }
         if (player.desktopEntry) names.push(player.desktopEntry);
         if (player.identity) names.push(String(player.identity).toLowerCase());
         for (let i = 0; i < names.length; ++i) {
@@ -40,9 +53,9 @@ Item {
     Rectangle {
         id: pill
         anchors.centerIn: parent
-        width: content.implicitWidth + 18
-        height: 24
-        radius: Theme.radiusSmall
+        width: content.implicitWidth + 24
+        height: 30
+        radius: 6
         color: Qt.rgba(0, 0, 0, 0.22)
         opacity: card.morph > 0.01 ? 0 : 1
 
@@ -52,39 +65,76 @@ Item {
             spacing: 7
 
             Item {
-                width: 15
-                height: 15
+                width: 18
+                height: 18
                 Image {
                     id: icon
                     anchors.fill: parent
                     source: root.appIconSource
                     fillMode: Image.PreserveAspectFit
                     smooth: true
-                    visible: source !== ""
+                    visible: !root.isYouTube && root.appIconSource !== ""
                     onStatusChanged: if (status === Image.Error) source = ""
                 }
                 StyledText {
                     anchors.centerIn: parent
-                    visible: icon.source === ""
+                    visible: !root.isYouTube && root.appIconSource === ""
                     text: "󰎈"
-                    font.pixelSize: 13
+                    font.pixelSize: 15
+                    color: Theme.fgMuted
+                }
+                StyledText {
+                    anchors.centerIn: parent
+                    visible: root.isYouTube
+                    text: ""
+                    font.pixelSize: 15
                     color: Theme.fgMuted
                 }
             }
 
             Item {
-                width: 14
-                height: 16
+                width: 16
+                height: 20
+                StyledText {
+                    anchors.centerIn: parent
+                    text: "󰒮"
+                    font.pixelSize: 14
+                    color: root.player && root.player.canGoPrevious ? Theme.fg : Theme.fgMuted
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.player !== null && root.player.canGoPrevious
+                    onClicked: root.player.previous()
+                }
+            }
+            Item {
+                width: 18
+                height: 22
                 StyledText {
                     anchors.centerIn: parent
                     text: root.isPlaying ? "󰏤" : "󰐊"
-                    font.pixelSize: 14
+                    font.pixelSize: 17
                     color: Theme.fg
                 }
                 MouseArea {
                     anchors.fill: parent
                     enabled: root.player !== null && root.player.canTogglePlaying
                     onClicked: root.player.togglePlaying()
+                }
+            }
+            Item {
+                width: 16
+                height: 20
+                StyledText {
+                    anchors.centerIn: parent
+                    text: "󰒭"
+                    font.pixelSize: 14
+                    color: root.player && root.player.canGoNext ? Theme.fg : Theme.fgMuted
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.player !== null && root.player.canGoNext
+                    onClicked: root.player.next()
                 }
             }
         }

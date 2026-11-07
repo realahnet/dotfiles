@@ -17,10 +17,10 @@ PanelWindow {
     property color accent: Theme.fgMuted
     property real morph: shown ? 1 : 0
 
-    readonly property int cardWidth: 380
-    readonly property int cardHeight: 152
+    readonly property int cardWidth: 440
+    readonly property int cardHeight: 188
     readonly property int cardGap: 6
-    readonly property real contentAmount: Math.max(0, Math.min(1, (morph - 0.3) / 0.5))
+    readonly property real contentAmount: Math.max(0, Math.min(1, (morph - 0.22) / 0.72))
 
     property rect triggerRect: Qt.rect(0, 0, 0, 0)
 
@@ -52,7 +52,7 @@ PanelWindow {
 
     Behavior on morph {
         NumberAnimation {
-            duration: root.shown ? 260 : 180
+            duration: 220
             easing.type: root.shown ? Easing.OutCubic : Easing.InCubic
         }
     }
@@ -117,45 +117,82 @@ PanelWindow {
         Row {
             id: compact
             anchors.left: parent.left
-            anchors.leftMargin: 9
+            anchors.leftMargin: 12
             anchors.verticalCenter: parent.verticalCenter
             spacing: 7
             opacity: Math.max(0, 1 - root.morph * 4)
 
             Item {
-                width: 15
-                height: 15
+                width: 18
+                height: 18
                 Image {
                     id: appIcon
                     anchors.fill: parent
                     source: root.appIconSource
                     fillMode: Image.PreserveAspectFit
                     smooth: true
-                    visible: source !== ""
+                    visible: !root.isYouTube && root.appIconSource !== ""
                     onStatusChanged: if (status === Image.Error) source = ""
                 }
                 StyledText {
                     anchors.centerIn: parent
-                    visible: appIcon.source === ""
+                    visible: !root.isYouTube && root.appIconSource === ""
                     text: "󰎈"
-                    font.pixelSize: 13
+                    font.pixelSize: 15
+                    color: Theme.fgMuted
+                }
+                StyledText {
+                    anchors.centerIn: parent
+                    visible: root.isYouTube
+                    text: ""
+                    font.pixelSize: 15
                     color: Theme.fgMuted
                 }
             }
 
             Item {
-                width: 14
-                height: 16
+                width: 16
+                height: 20
+                StyledText {
+                    anchors.centerIn: parent
+                    text: "󰒮"
+                    font.pixelSize: 14
+                    color: root.player && root.player.canGoPrevious ? Theme.fg : Theme.fgMuted
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.player !== null && root.player.canGoPrevious
+                    onClicked: root.player.previous()
+                }
+            }
+            Item {
+                width: 18
+                height: 22
                 StyledText {
                     anchors.centerIn: parent
                     text: root.isPlaying ? "󰏤" : "󰐊"
-                    font.pixelSize: 14
+                    font.pixelSize: 17
                     color: Theme.fg
                 }
                 MouseArea {
                     anchors.fill: parent
                     enabled: root.player !== null && root.player.canTogglePlaying
                     onClicked: root.player.togglePlaying()
+                }
+            }
+            Item {
+                width: 16
+                height: 20
+                StyledText {
+                    anchors.centerIn: parent
+                    text: "󰒭"
+                    font.pixelSize: 14
+                    color: root.player && root.player.canGoNext ? Theme.fg : Theme.fgMuted
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    enabled: root.player !== null && root.player.canGoNext
+                    onClicked: root.player.next()
                 }
             }
         }
@@ -169,10 +206,10 @@ PanelWindow {
 
             Item {
                 id: artFrame
-                x: 14
-                y: 14
-                width: 124
-                height: 124
+                x: 16
+                y: 16
+                width: 148
+                height: 148
 
                 Canvas {
                     id: sampler
@@ -205,19 +242,22 @@ PanelWindow {
                     source: art
                     maskEnabled: true
                     maskSource: artMask
-                    visible: art.status === Image.Ready
+                    opacity: art.status === Image.Ready ? 1 : 0
+                    Behavior on opacity { NumberAnimation { duration: 180 } }
                 }
 
                 Rectangle {
                     anchors.fill: parent
                     radius: 6
                     color: Theme.elevated
-                    visible: art.status !== Image.Ready
+                    opacity: art.status === Image.Ready ? 0 : 1
+                    Behavior on opacity { NumberAnimation { duration: 180 } }
                 }
 
                 StyledText {
                     anchors.centerIn: parent
-                    visible: art.status !== Image.Ready
+                    opacity: art.status === Image.Ready ? 0 : 1
+                    Behavior on opacity { NumberAnimation { duration: 180 } }
                     text: "󰎈"
                     font.pixelSize: 34
                     color: Theme.fgMuted
@@ -233,17 +273,17 @@ PanelWindow {
             }
 
             ColumnLayout {
-                x: 152
-                y: 14
-                width: root.cardWidth - 152 - 14
-                height: 124
+                x: 180
+                y: 18
+                width: root.cardWidth - 180 - 18
+                height: 152
                 spacing: 3
 
                 StyledText {
                     Layout.fillWidth: true
                     text: root.identity.toUpperCase()
                     color: Theme.fgMuted
-                    font.pixelSize: 10
+                    font.pixelSize: 11
                     font.letterSpacing: 1.2
                     elide: Text.ElideRight
                 }
@@ -252,7 +292,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     text: root.title
                     color: Theme.white
-                    font.pixelSize: 15
+                    font.pixelSize: 17
                     font.weight: Font.DemiBold
                     elide: Text.ElideRight
                 }
@@ -261,7 +301,7 @@ PanelWindow {
                     Layout.fillWidth: true
                     text: root.artist
                     color: Theme.fgMuted
-                    font.pixelSize: 12
+                    font.pixelSize: 15
                     elide: Text.ElideRight
                 }
 
@@ -270,7 +310,7 @@ PanelWindow {
                 SeekBar {
                     id: seek
                     Layout.fillWidth: true
-                    Layout.preferredHeight: 14
+                    Layout.preferredHeight: 16
                     mediaPlayer: root.player
                     accentColor: root.accent
                 }
@@ -282,13 +322,13 @@ PanelWindow {
                     StyledText {
                         text: seek ? root.fmt(seek.displayPos) : "0:00"
                         color: Theme.fgMuted
-                        font.pixelSize: 10
+                        font.pixelSize: 11
                     }
                     Item { Layout.fillWidth: true }
                     StyledText {
                         text: root.fmt(root.player ? root.player.length : 0)
                         color: Theme.fgMuted
-                        font.pixelSize: 10
+                        font.pixelSize: 11
                     }
                 }
 
@@ -297,12 +337,12 @@ PanelWindow {
                     spacing: 16
 
                     Item {
-                        width: 22
-                        height: 22
+                        width: 24
+                        height: 24
                         StyledText {
                             anchors.centerIn: parent
                             text: "󰒮"
-                            font.pixelSize: 16
+                            font.pixelSize: 17
                             color: root.player && root.player.canGoPrevious ? Theme.fg : Theme.fgMuted
                         }
                         MouseArea {
@@ -313,12 +353,12 @@ PanelWindow {
                     }
 
                     Item {
-                        width: 26
-                        height: 26
+                        width: 30
+                        height: 30
                         StyledText {
                             anchors.centerIn: parent
                             text: root.isPlaying ? "󰏤" : "󰐊"
-                            font.pixelSize: 21
+                            font.pixelSize: 23
                             color: Theme.white
                         }
                         MouseArea {
@@ -329,12 +369,12 @@ PanelWindow {
                     }
 
                     Item {
-                        width: 22
-                        height: 22
+                        width: 24
+                        height: 24
                         StyledText {
                             anchors.centerIn: parent
                             text: "󰒭"
-                            font.pixelSize: 16
+                            font.pixelSize: 17
                             color: root.player && root.player.canGoNext ? Theme.fg : Theme.fgMuted
                         }
                         MouseArea {
@@ -388,6 +428,7 @@ PanelWindow {
             height: 4
             radius: 2
             color: bar.accentColor
+            Behavior on color { ColorAnimation { duration: 200 } }
         }
         Rectangle {
             id: thumb
@@ -397,6 +438,7 @@ PanelWindow {
             height: 10
             radius: 5
             color: bar.accentColor
+            Behavior on color { ColorAnimation { duration: 200 } }
             visible: bar.seekable
         }
         MouseArea {
@@ -426,9 +468,22 @@ PanelWindow {
         return u.charAt(0) === "/" ? "file://" + u : u;
     }
 
+    readonly property bool chromePlayer: {
+        if (!player) return false;
+        const s = (String(player.identity || "") + " " + String(player.desktopEntry || "")).toLowerCase();
+        return s.indexOf("chrome") !== -1 || s.indexOf("chromium") !== -1;
+    }
+
+    readonly property bool isYouTube: {
+        if (!player || !root.chromePlayer) return false;
+        const hay = (String(player.trackTitle || "") + " " + String(player.trackAlbum || "") + " " + String(player.trackArtUrl || "")).toLowerCase();
+        return hay.indexOf("youtube") !== -1 || hay.indexOf("ytimg") !== -1;
+    }
+
     readonly property string appIconSource: {
         if (!player) return "";
         const names = [];
+        if (root.chromePlayer) { names.push("google-chrome-stable"); names.push("google-chrome"); }
         if (player.desktopEntry) names.push(player.desktopEntry);
         if (player.identity) names.push(String(player.identity).toLowerCase());
         for (let i = 0; i < names.length; ++i) {
