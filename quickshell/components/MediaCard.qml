@@ -1,4 +1,5 @@
 import Quickshell
+import Quickshell.Services.Mpris
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Effects
@@ -458,12 +459,32 @@ PanelWindow {
 
     readonly property bool isPlaying: player ? player.isPlaying : false
     readonly property string title: player ? (player.trackTitle || "") : ""
-    readonly property string artist: player ? (player.trackArtist || "") : ""
+    readonly property string artist: player ? (player.trackArtist || (root.artCompanion ? root.artCompanion.trackArtist : "") || "") : ""
     readonly property string identity: player ? (player.identity || "") : ""
+
+    readonly property var artCompanion: {
+        if (!player || player.trackArtUrl) return null;
+        const norm = function(t) {
+            return String(t || "").toLowerCase()
+                .replace(/^\(\d+\)\s*/, "")
+                .replace(/\s*-\s*youtube\s*$/, "")
+                .trim();
+        };
+        const want = norm(player.trackTitle);
+        if (!want) return null;
+        const ps = Mpris.players.values;
+        for (let i = 0; i < ps.length; ++i) {
+            const p = ps[i];
+            if (!p || p === player || !p.trackArtUrl) continue;
+            if (norm(p.trackTitle) === want) return p;
+        }
+        return null;
+    }
 
     readonly property string artSource: {
         if (!player) return "";
-        const u = player.trackArtUrl || "";
+        let u = player.trackArtUrl || "";
+        if (!u && root.artCompanion) u = root.artCompanion.trackArtUrl || "";
         if (!u) return "";
         return u.charAt(0) === "/" ? "file://" + u : u;
     }
