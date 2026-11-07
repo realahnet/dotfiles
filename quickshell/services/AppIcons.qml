@@ -7,6 +7,8 @@
 pragma Singleton
 
 import Quickshell
+import Quickshell.Hyprland
+import QtQml
 
 Singleton {
     id: root
@@ -99,6 +101,17 @@ Singleton {
 
     function matches(pattern, value) {
         return new RegExp(pattern, "i").test(value);
+    }
+
+    // Quickshell only fills a toplevel's lastIpcObject (where the class
+    // lives) during refreshToplevels(). Windows opened after Quickshell
+    // started would otherwise have no class and always get the fallback.
+    Connections {
+        target: Hyprland
+        function onRawEvent(event) {
+            if (event.name === "openwindow")
+                Hyprland.refreshToplevels();
+        }
     }
 
     function iconFor(toplevel) {
