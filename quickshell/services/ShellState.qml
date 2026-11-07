@@ -29,6 +29,21 @@ Singleton {
         onTriggered: root.osdVisible = false
     }
 
+    // Ignore the next volume-change notification(s) while the user is
+    // adjusting volume directly from the bar (scroll wheel or slider).
+    property bool osdSuppressed: false
+
+    Timer {
+        id: osdSuppressTimer
+        interval: 500
+        onTriggered: root.osdSuppressed = false
+    }
+
+    function suppressOsd() {
+        root.osdSuppressed = true;
+        osdSuppressTimer.restart();
+    }
+
     function showOsd(kind, value, icon) {
         root.osdKind = kind;
         root.osdValue = value;

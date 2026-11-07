@@ -41,6 +41,8 @@ Item {
         if (v === lastVolume && m === lastMuted) return;
         lastVolume = v;
         lastMuted = m;
+        if (ShellState.osdSuppressed)
+            return;
         ShellState.showOsd("volume", v, volumeIcon(v, m));
     }
 

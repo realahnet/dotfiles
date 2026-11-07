@@ -30,6 +30,7 @@ Item {
 
     function change(delta) {
         if (!root.audio) return;
+        ShellState.suppressOsd();
         // 1.5 == the 150% maximum from your swayosd keybinds.
         root.audio.volume = Math.max(0, Math.min(1.5, root.audio.volume + delta));
     }

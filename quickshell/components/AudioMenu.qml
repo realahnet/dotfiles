@@ -47,7 +47,7 @@ Rectangle {
             value: root.audio ? root.audio.volume : 0
             from: 0
             to: 1.5
-            onMoved: (v) => { if (root.audio) root.audio.volume = v; }
+            onMoved: (v) => { if (root.audio) { ShellState.suppressOsd(); root.audio.volume = v; } }
         }
 
         Rectangle { Layout.fillWidth: true; height: 1; color: Theme.cardBorder }
