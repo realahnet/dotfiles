@@ -4,3 +4,4 @@ singleton AppIcons 1.0 AppIcons.qml
 singleton Weather 1.0 Weather.qml
 singleton Notifications 1.0 Notifications.qml
 singleton LockState 1.0 LockState.qml
+singleton MediaActions 1.0 MediaActions.qml

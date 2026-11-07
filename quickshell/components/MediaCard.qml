@@ -158,12 +158,12 @@ PanelWindow {
                     anchors.centerIn: parent
                     text: "󰒮"
                     font.pixelSize: 14
-                    color: root.player && root.player.canGoPrevious ? Theme.fg : Theme.fgMuted
+                    color: MediaActions.canPrevious(root.player) ? Theme.fg : Theme.fgMuted
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: root.player !== null && root.player.canGoPrevious
-                    onClicked: root.player.previous()
+                    enabled: MediaActions.canPrevious(root.player)
+                    onClicked: MediaActions.previous(root.player)
                 }
             }
             Item {
@@ -188,12 +188,12 @@ PanelWindow {
                     anchors.centerIn: parent
                     text: "󰒭"
                     font.pixelSize: 14
-                    color: root.player && root.player.canGoNext ? Theme.fg : Theme.fgMuted
+                    color: MediaActions.canNext(root.player) ? Theme.fg : Theme.fgMuted
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: root.player !== null && root.player.canGoNext
-                    onClicked: root.player.next()
+                    enabled: MediaActions.canNext(root.player)
+                    onClicked: MediaActions.next(root.player)
                 }
             }
         }
@@ -344,12 +344,12 @@ PanelWindow {
                             anchors.centerIn: parent
                             text: "󰒮"
                             font.pixelSize: 17
-                            color: root.player && root.player.canGoPrevious ? Theme.fg : Theme.fgMuted
+                            color: MediaActions.canPrevious(root.player) ? Theme.fg : Theme.fgMuted
                         }
                         MouseArea {
                             anchors.fill: parent
-                            enabled: root.player !== null && root.player.canGoPrevious
-                            onClicked: root.player.previous()
+                            enabled: MediaActions.canPrevious(root.player)
+                            onClicked: MediaActions.previous(root.player)
                         }
                     }
 
@@ -376,12 +376,12 @@ PanelWindow {
                             anchors.centerIn: parent
                             text: "󰒭"
                             font.pixelSize: 17
-                            color: root.player && root.player.canGoNext ? Theme.fg : Theme.fgMuted
+                            color: MediaActions.canNext(root.player) ? Theme.fg : Theme.fgMuted
                         }
                         MouseArea {
                             anchors.fill: parent
-                            enabled: root.player !== null && root.player.canGoNext
-                            onClicked: root.player.next()
+                            enabled: MediaActions.canNext(root.player)
+                            onClicked: MediaActions.next(root.player)
                         }
                     }
                 }
