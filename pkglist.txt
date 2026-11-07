@@ -3,13 +3,11 @@ awesome-terminal-fonts
 cantarell-fonts
 gnome-themes-extra
 hyprland
-hyprpolkitagent
 hyprshot
 kde-gtk-config
 nwg-displays
 nwg-look
 playerctl
-polkit-gnome
 powerprofilesctl
 qt6ct
 quickshell

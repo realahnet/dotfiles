@@ -51,7 +51,6 @@ hl.on("hyprland.start", function ()
    -- Quickshell (bar, notifications, OSD, lock, idle); Hyprland-only, never Plasma.
    hl.exec_cmd("qs -p ~/.config/quickshell")
    hl.exec_cmd("awww-daemon")
-   hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
 
    -- USB Connection / Disconnection Notifier
    hl.exec_cmd("~/.config/hypr/scripts/usb-notify.py")

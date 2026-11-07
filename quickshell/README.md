@@ -24,6 +24,12 @@ while editing.
 Quickshell owns org.freedesktop.Notifications, with a notification center and
 stacked toasts. Clicking outside the center closes it.
 
+## Polkit
+
+Quickshell also registers the polkit authentication agent, replacing
+polkit-gnome. Requests show a centered, blurred card with the action message
+and the same password pill used on the lock screen. Enter submits, Esc cancels.
+
 ## Lock / idle
 
 Super+M locks through Quickshell. Idle timers: 5 min on
@@ -68,6 +74,7 @@ quickshell/
 │   ├── OsdWatcher.qml           # volume + brightness change watcher
 │   ├── LockScreen.qml           # WlSessionLock wrapper
 │   ├── LockSurface.qml          # lock UI + PAM
+│   ├── PolkitPrompt.qml         # polkit auth agent + password card
 │   ├── Idle.qml                 # idle timers, DPMS, suspend, sleep lock
 │   └── StyledText.qml           # Text with our font/colour defaults
 └── services/
@@ -87,6 +94,7 @@ quickshell/
 - [x] Phase 3 — OSD for volume/brightness (swayosd replacement)
 - [x] Phase 4 — lock screen + idle (hyprlock + hypridle replacement)
 - [x] Phase 5 — tray context menus; launcher/emoji stays on rofi
+- [x] Phase 6 — minimal polkit agent (polkit-gnome replacement)
 
 ## The one-sentence mental model
 

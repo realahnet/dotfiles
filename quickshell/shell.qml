@@ -33,6 +33,7 @@ Scope {
 
     LockScreen {}
     Idle {}
+    PolkitPrompt {}
 
     IpcHandler {
         target: "lock"
