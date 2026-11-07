@@ -150,6 +150,16 @@ Rectangle {
         }
     }
 
+    onNotificationChanged: {
+        if (root.entryId > 0 && !root.notification)
+            root.dismiss();
+    }
+
+    Connections {
+        target: root.notification
+        function onClosed() { root.dismiss(); }
+    }
+
     MouseArea {
         anchors.fill: parent
         cursorShape: Qt.PointingHandCursor
