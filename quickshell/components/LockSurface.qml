@@ -11,6 +11,24 @@ import "../services"
 Item {
     id: root
     anchors.fill: parent
+    focus: true
+
+    // Last line of defence: if the field somehow lost focus, take the key
+    // that was meant for it, re-focus the field and replay the key.
+    Keys.onPressed: (event) => {
+        if (root.unlocking || input.activeFocus)
+            return;
+        input.forceActiveFocus();
+        if (event.key === Qt.Key_Backspace) {
+            if (input.text.length > 0)
+                input.remove(input.text.length - 1, 1);
+        } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+            root.submit();
+        } else if (event.text.length > 0
+                   && !(event.modifiers & (Qt.ControlModifier | Qt.AltModifier | Qt.MetaModifier))) {
+            input.insert(input.text.length, event.text);
+        }
+    }
 
     readonly property string home: Quickshell.env("HOME") || "/home/ahnet"
     readonly property string userName: Quickshell.env("USER") || "ahnet"
@@ -38,7 +56,7 @@ Item {
 
     readonly property string wallpaperSource: "file://" + LockState.wallpaperPath
     readonly property string shotSource: "file://" + LockState.backgroundPath
-    readonly property string noiseSource: "file://" + root.home + "/dotfiles/quickshell/assets/noise.png"
+    readonly property string noiseSource: "file://" + LockState.configHome + "/quickshell/assets/noise.png"
 
     Component.onCompleted: {
         revealAnim.start();
@@ -69,6 +87,25 @@ Item {
         id: focusTimer
         interval: 150
         onTriggered: input.forceActiveFocus()
+    }
+
+    // Suspending or turning the display off can drop QML focus even though the
+    // lock surface still owns the keyboard. Keep the password field armed so
+    // the first key typed after waking is captured.
+    Timer {
+        id: focusGuard
+        interval: 200
+        running: !root.unlocking
+        repeat: true
+        onTriggered: if (!input.activeFocus) input.forceActiveFocus()
+    }
+
+    Connections {
+        target: LockState
+        function onDisplayOffChanged() {
+            if (!LockState.displayOff)
+                focusTimer.restart();
+        }
     }
 
 
