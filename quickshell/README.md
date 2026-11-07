@@ -30,10 +30,6 @@ Quickshell also registers the polkit authentication agent, replacing
 polkit-gnome. Requests show a centered, blurred card with the action message
 and the same password pill used on the lock screen. Enter submits, Esc cancels.
 
-Polkit uses pam.d/polkit-1 (installed by install.sh), which keeps
-pam_unix.so nodelay and skips faillock, so repeated wrong attempts are not
-deliberately slowed down.
-
 ## Lock / idle
 
 Super+M locks through Quickshell. Idle timers: 5 min on

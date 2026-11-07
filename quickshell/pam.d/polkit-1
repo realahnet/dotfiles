@@ -1,4 +1,0 @@
-# Quickshell polkit agent.
-# Password-only, no faillock and no artificial delay between attempts.
-auth required pam_unix.so nodelay
-account required pam_unix.so
