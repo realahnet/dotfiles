@@ -20,29 +20,57 @@ Item {
     function sceneX(i) { let v = 0; while (i) { v += i.x; i = i.parent; } return v; }
     function sceneY(i) { let v = 0; while (i) { v += i.y; i = i.parent; } return v; }
     readonly property rect pillRect: pill ? Qt.rect(sceneX(pill), sceneY(pill), pill.width, pill.height) : Qt.rect(0, 0, 0, 0)
-    readonly property bool isPlaying: player ? player.isPlaying : false
-    visible: player !== null
+    readonly property bool hasPlayer: player !== null
+    readonly property bool isYouTubeNow: player ? isYT(player) : false
+    property real shrink: player ? 0 : 1
+
+    onHasPlayerChanged: {
+        shrinkAnim.stop();
+        if (hasPlayer) shrink = 0;
+        else if (shrink < 0.999) {
+            if (card && card.morph > 0.01) shrink = 1;
+            else shrinkAnim.restart();
+        }
+    }
+
+    visible: hasPlayer || shrink < 0.995
     implicitWidth: pill.width
     implicitHeight: Theme.barHeight
 
-    readonly property bool chromePlayer: {
-        if (!player) return false;
-        const s = (String(player.identity || "") + " " + String(player.desktopEntry || "")).toLowerCase();
+    NumberAnimation {
+        id: shrinkAnim
+        target: root
+        property: "shrink"
+        from: 0
+        to: 1
+        duration: 300
+        easing.type: Easing.InQuad
+    }
+
+    property string lastIcon: ""
+    property bool lastYouTube: false
+    property bool lastPlaying: false
+    property bool lastCanPrev: false
+    property bool lastCanNext: false
+
+    function isChrome(p) {
+        if (!p) return false;
+        const s = (String(p.identity || "") + " " + String(p.desktopEntry || "")).toLowerCase();
         return s.indexOf("chrome") !== -1 || s.indexOf("chromium") !== -1;
     }
 
-    readonly property bool isYouTube: {
-        if (!player || !root.chromePlayer) return false;
-        const hay = (String(player.trackTitle || "") + " " + String(player.trackAlbum || "") + " " + String(player.trackArtUrl || "")).toLowerCase();
+    function isYT(p) {
+        if (!p || !root.isChrome(p)) return false;
+        const hay = (String(p.trackTitle || "") + " " + String(p.trackAlbum || "") + " " + String(p.trackArtUrl || "")).toLowerCase();
         return hay.indexOf("youtube") !== -1 || hay.indexOf("ytimg") !== -1;
     }
 
-    readonly property string appIconSource: {
-        if (!player) return "";
+    function iconFor(p) {
+        if (!p) return "";
         const names = [];
-        if (root.chromePlayer) { names.push("google-chrome-stable"); names.push("google-chrome"); }
-        if (player.desktopEntry) names.push(player.desktopEntry);
-        if (player.identity) names.push(String(player.identity).toLowerCase());
+        if (root.isChrome(p)) { names.push("google-chrome-stable"); names.push("google-chrome"); }
+        if (p.desktopEntry) names.push(p.desktopEntry);
+        if (p.identity) names.push(String(p.identity).toLowerCase());
         for (let i = 0; i < names.length; ++i) {
             const path = Quickshell.iconPath(names[i], true);
             if (path) return path;
@@ -50,14 +78,28 @@ Item {
         return "";
     }
 
+    readonly property string shownIcon: player ? iconFor(player) : lastIcon
+    readonly property bool shownYouTube: player ? isYT(player) : lastYouTube
+    readonly property bool shownPlaying: player ? player.isPlaying : lastPlaying
+    readonly property bool shownCanPrev: player ? MediaActions.canPrevious(player, isYT(player)) : lastCanPrev
+    readonly property bool shownCanNext: player ? MediaActions.canNext(player, isYT(player)) : lastCanNext
+
+    onShownIconChanged: if (player) lastIcon = shownIcon
+    onShownYouTubeChanged: if (player) lastYouTube = shownYouTube
+    onShownPlayingChanged: if (player) lastPlaying = shownPlaying
+    onShownCanPrevChanged: if (player) lastCanPrev = shownCanPrev
+    onShownCanNextChanged: if (player) lastCanNext = shownCanNext
+
     Rectangle {
         id: pill
         anchors.centerIn: parent
-        width: content.implicitWidth + 24
+        width: (content.implicitWidth + 24) * (1 - root.shrink)
         height: 30
-        radius: 6
+        radius: 6 + (height / 2 - 6) * root.shrink
         color: Qt.rgba(0, 0, 0, 0.22)
-        opacity: card.morph > 0.01 ? 0 : 1
+        clip: true
+        opacity: card.morph > 0.01 ? 0
+            : (root.shrink > 0.7 ? Math.max(0, 1 - (root.shrink - 0.7) / 0.3) : 1)
 
         Row {
             id: content
@@ -70,22 +112,22 @@ Item {
                 Image {
                     id: icon
                     anchors.fill: parent
-                    source: root.appIconSource
+                    source: root.shownIcon
                     fillMode: Image.PreserveAspectFit
                     smooth: true
-                    visible: !root.isYouTube && root.appIconSource !== ""
+                    visible: !root.shownYouTube && root.shownIcon !== ""
                     onStatusChanged: if (status === Image.Error) source = ""
                 }
                 StyledText {
                     anchors.centerIn: parent
-                    visible: !root.isYouTube && root.appIconSource === ""
+                    visible: !root.shownYouTube && root.shownIcon === ""
                     text: "󰎈"
                     font.pixelSize: 15
                     color: Theme.fgMuted
                 }
                 StyledText {
                     anchors.centerIn: parent
-                    visible: root.isYouTube
+                    visible: root.shownYouTube
                     text: ""
                     font.pixelSize: 15
                     color: Theme.fgMuted
@@ -99,12 +141,12 @@ Item {
                     anchors.centerIn: parent
                     text: "󰒮"
                     font.pixelSize: 14
-                    color: MediaActions.canPrevious(root.player, root.isYouTube) ? Theme.fg : Theme.fgMuted
+                    color: root.shownCanPrev ? Theme.fg : Theme.fgMuted
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: MediaActions.canPrevious(root.player, root.isYouTube)
-                    onClicked: MediaActions.previous(root.player, root.isYouTube)
+                    enabled: root.hasPlayer && root.shownCanPrev
+                    onClicked: MediaActions.previous(root.player, root.isYouTubeNow)
                 }
             }
             Item {
@@ -112,7 +154,7 @@ Item {
                 height: 22
                 StyledText {
                     anchors.centerIn: parent
-                    text: root.isPlaying ? "󰏤" : "󰐊"
+                    text: root.shownPlaying ? "󰏤" : "󰐊"
                     font.pixelSize: 17
                     color: Theme.fg
                 }
@@ -129,12 +171,12 @@ Item {
                     anchors.centerIn: parent
                     text: "󰒭"
                     font.pixelSize: 14
-                    color: MediaActions.canNext(root.player, root.isYouTube) ? Theme.fg : Theme.fgMuted
+                    color: root.shownCanNext ? Theme.fg : Theme.fgMuted
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: MediaActions.canNext(root.player, root.isYouTube)
-                    onClicked: MediaActions.next(root.player, root.isYouTube)
+                    enabled: root.hasPlayer && root.shownCanNext
+                    onClicked: MediaActions.next(root.player, root.isYouTubeNow)
                 }
             }
         }
