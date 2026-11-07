@@ -28,7 +28,7 @@ Rectangle {
     }
     onIconSourceChanged: iconFailed = false
 
-    implicitHeight: content.implicitHeight + 34
+    implicitHeight: content.implicitHeight + 38
     radius: Theme.radius
     color: Theme.panelBg
     border.width: 1
@@ -95,19 +95,19 @@ Rectangle {
     ColumnLayout {
         id: content
         anchors.fill: parent
-        anchors.leftMargin: 16
-        anchors.rightMargin: 16
-        anchors.topMargin: 18
-        anchors.bottomMargin: 16
-        spacing: 8
+        anchors.leftMargin: 18
+        anchors.rightMargin: 18
+        anchors.topMargin: 20
+        anchors.bottomMargin: 18
+        spacing: 9
 
         RowLayout {
             Layout.fillWidth: true
             spacing: 10
 
             Item {
-                implicitWidth: 22
-                implicitHeight: 22
+                implicitWidth: 25
+                implicitHeight: 25
                 Image {
                     anchors.fill: parent
                     source: root.iconSource
@@ -120,7 +120,7 @@ Rectangle {
                     anchors.centerIn: parent
                     visible: root.iconSource === "" || root.iconFailed
                     text: "󰂚"
-                    font.pixelSize: 16
+                    font.pixelSize: 18
                     color: Theme.fgMuted
                 }
             }
@@ -131,7 +131,7 @@ Rectangle {
                     ? (root.notification.summary || root.notification.appName)
                     : ""
                 color: Theme.white
-                font.pixelSize: 14
+                font.pixelSize: 15
                 font.weight: Font.Bold
                 elide: Text.ElideRight
             }
@@ -143,7 +143,7 @@ Rectangle {
             text: root.notification ? root.notification.body : ""
             textFormat: Text.PlainText
             color: Theme.fgMuted
-            font.pixelSize: 12
+            font.pixelSize: 13
             wrapMode: Text.Wrap
             maximumLineCount: 3
             elide: Text.ElideRight

@@ -11,7 +11,7 @@ PanelWindow {
 
     readonly property bool active: Notifications.toastCount > 0
 
-    implicitWidth: 440
+    implicitWidth: 480
     implicitHeight: toastList.contentHeight
     color: "transparent"
     visible: showWindow && !LockState.locked
