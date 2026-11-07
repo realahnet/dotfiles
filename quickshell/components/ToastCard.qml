@@ -150,14 +150,24 @@ Rectangle {
         }
     }
 
-    onNotificationChanged: {
-        if (root.entryId > 0 && !root.notification)
-            root.dismiss();
+    // If the sending app blanks the notification body (e.g. withdrawing it
+    // when its window opens) instead of closing it, drop the toast at once.
+    property bool hadBody: false
+
+    function contentCheck() {
+        if (root.entryId <= 0 || !root.notification) return;
+        const body = root.notification.body || "";
+        if (body) root.hadBody = true;
+        else if (root.hadBody) root.dismiss();
     }
 
     Connections {
         target: root.notification
         function onClosed() { root.dismiss(); }
+        function onBodyChanged() { root.contentCheck(); }
+        function onSummaryChanged() { root.contentCheck(); }
+        function onAppNameChanged() { root.contentCheck(); }
+        function onImageChanged() { root.contentCheck(); }
     }
 
     MouseArea {
@@ -200,6 +210,7 @@ Rectangle {
     }
 
     onEntryIdChanged: {
+        root.hadBody = false;
         root.progress = 0;
         barAnim.restart();
         cardTimer.restart();
