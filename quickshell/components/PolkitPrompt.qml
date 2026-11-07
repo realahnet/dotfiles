@@ -15,6 +15,7 @@ PanelWindow {
     readonly property bool active: flow !== null && !LockState.locked
 
     property bool shown: false
+    property bool closing: false
     property real reveal: 0
     property bool failed: false
     property string errorText: ""
@@ -50,6 +51,7 @@ PanelWindow {
 
     onFlowChanged: {
         if (flow) {
+            closing = false;
             failed = false;
             errorText = "";
             iconFailed = false;
@@ -58,6 +60,7 @@ PanelWindow {
             reveal = 1;
             focusTimer.restart();
         } else {
+            closing = true;
             reveal = 0;
             input.text = "";
             hideTimer.restart();
@@ -87,7 +90,10 @@ PanelWindow {
     }
 
     Behavior on reveal {
-        NumberAnimation { duration: 180; easing.type: Easing.OutCubic }
+        NumberAnimation {
+            duration: root.closing ? 180 : 450
+            easing.type: root.closing ? Easing.InCubic : Easing.OutExpo
+        }
     }
 
     Connections {
@@ -119,8 +125,6 @@ PanelWindow {
         id: card
         anchors.fill: parent
         opacity: root.reveal
-        scale: 0.96 + 0.04 * root.reveal
-        transformOrigin: Item.Center
 
         Rectangle {
             anchors.fill: parent
