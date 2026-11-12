@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Services.Pipewire
+import "../services"
 import QtQuick
 import QtQuick.Layouts
 import "../services"
@@ -122,6 +123,18 @@ Rectangle {
                     MouseArea { anchors.fill: parent; onClicked: Pipewire.preferredDefaultAudioSource = inRow.modelData }
                 }
             }
+        }
+    }
+
+    // Scroll anywhere on the card to change the master volume
+    MouseArea {
+        anchors.fill: parent
+        acceptedButtons: Qt.NoButton
+        onWheel: (w) => {
+            if (!root.sink || !root.sink.audio) return;
+            ShellState.suppressOsd();
+            const a = root.sink.audio;
+            a.volume = Math.max(0, Math.min(1.5, a.volume + (w.angleDelta.y > 0 ? 0.03 : -0.03)));
         }
     }
 }
