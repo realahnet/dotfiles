@@ -30,7 +30,7 @@ PanelWindow {
     color: "transparent"
     anchors.top: true
     anchors.left: true
-    margins.top: Theme.barHeight + 6
+    margins.top: Theme.barHeight + 4
     margins.left: Math.max(8, Math.min(Math.round(anchorX),
         (screen ? screen.width : 1920) - implicitWidth - 8))
     exclusiveZone: 0
@@ -66,7 +66,10 @@ PanelWindow {
     }
 
     Behavior on reveal {
-        NumberAnimation { duration: 140; easing.type: Easing.OutCubic }
+        NumberAnimation {
+            duration: root.open ? 200 : 140
+            easing.type: root.open ? Easing.OutCubic : Easing.InCubic
+        }
     }
 
     Item {

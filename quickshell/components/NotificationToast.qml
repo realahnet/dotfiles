@@ -17,7 +17,7 @@ PanelWindow {
     visible: showWindow && !LockState.locked
     anchors.top: true
     anchors.right: true
-    margins.top: Theme.barHeight + 6
+    margins.top: Theme.barHeight + 4
     margins.right: 20
     exclusiveZone: 0
     WlrLayershell.namespace: "quickshell-toast"

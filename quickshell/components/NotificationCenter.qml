@@ -24,7 +24,7 @@ PanelWindow {
     visible: showWindow && !LockState.locked
     anchors.top: true
     anchors.right: true
-    margins.top: Theme.barHeight + 6
+    margins.top: Theme.barHeight + 4
     margins.right: rightMargin
     exclusiveZone: 0
     WlrLayershell.namespace: "quickshell-notifications"
@@ -71,9 +71,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.opening ? 180 : 120
-            easing.type: root.opening ? Easing.OutBack : Easing.InCubic
-            easing.overshoot: 1.2
+            duration: root.opening ? 200 : 140
+            easing.type: root.opening ? Easing.OutCubic : Easing.InCubic
         }
     }
 

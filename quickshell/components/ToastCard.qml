@@ -67,7 +67,7 @@ Rectangle {
         implicitHeight: root.height
         anchors.top: true
         anchors.right: true
-        margins.top: Theme.barHeight + 6 + root.y
+        margins.top: Theme.barHeight + 4 + root.y
         margins.right: 20
         exclusiveZone: 0
         WlrLayershell.namespace: "quickshell-toast-blur"

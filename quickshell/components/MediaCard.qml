@@ -53,7 +53,7 @@ PanelWindow {
 
     Behavior on morph {
         NumberAnimation {
-            duration: 220
+            duration: root.shown ? 200 : 140
             easing.type: root.shown ? Easing.OutCubic : Easing.InCubic
         }
     }
