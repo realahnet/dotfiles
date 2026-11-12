@@ -246,7 +246,7 @@ PanelWindow {
                         anchors.verticalCenter: parent.verticalCenter
                         x: 0
                         spacing: 7
-                        scale: Math.min(1, parent.width / Math.max(1, width))
+                        scale: Math.max(0.45, Math.min(1, parent.width / Math.max(1, width)))
                         transformOrigin: Item.Center
                         opacity: (root.failed || input.text.length === 0) ? 0 : 1
 
