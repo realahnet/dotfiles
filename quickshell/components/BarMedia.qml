@@ -7,16 +7,32 @@ Item {
     id: root
     property var barWindow: null
 
-    readonly property var player: {
+    readonly property var sources: {
         const all = Mpris.players.values;
-        if (!all || all.length === 0) return null;
-        const ps = all.filter(p => String(p.dbusName || "").toLowerCase().indexOf("plasma-browser-integration") === -1);
-        if (ps.length === 0) return null;
+        if (!all) return [];
+        return all.filter(p => String(p.dbusName || "").toLowerCase().indexOf("plasma-browser-integration") === -1);
+    }
+
+    // Auto-selected "active" source: playing first, then non-stopped
+    readonly property int autoIndex: {
+        const ps = sources;
         for (let i = 0; i < ps.length; ++i)
-            if (ps[i].isPlaying) return ps[i];
+            if (ps[i].isPlaying) return i;
         for (let i = 0; i < ps.length; ++i)
-            if (ps[i].playbackState !== MprisPlaybackState.Stopped) return ps[i];
-        return null;
+            if (ps[i].playbackState !== MprisPlaybackState.Stopped) return i;
+        return ps.length ? 0 : -1;
+    }
+
+    readonly property var player: (autoIndex >= 0 && sources.length > 0) ? sources[autoIndex] : null
+
+    // Which source the expanded card is viewing
+    property int viewIndex: 0
+    property bool manualSel: false
+    function cycleSource(dir) {
+        const n = sources.length;
+        if (n < 2) return;
+        manualSel = true;
+        viewIndex = ((viewIndex + dir) % n + n) % n;
     }
 
     function sceneX(i) { let v = 0; while (i) { v += i.x; i = i.parent; } return v; }
@@ -26,7 +42,22 @@ Item {
     readonly property bool isYouTubeNow: player ? isYT(player) : false
     property real shrink: 1
 
-    Component.onCompleted: if (hasPlayer) shrink = 0
+    Component.onCompleted: {
+        viewIndex = Math.max(0, autoIndex);
+        if (hasPlayer) shrink = 0;
+    }
+
+    onAutoIndexChanged: if (!manualSel && !(card && card.shown)) viewIndex = Math.max(0, autoIndex)
+
+    Connections {
+        target: card
+        function onShownChanged() {
+            if (!card.shown) {
+                root.manualSel = false;
+                root.viewIndex = Math.max(0, root.autoIndex);
+            }
+        }
+    }
 
     onHasPlayerChanged: {
         shrinkAnim.stop();
@@ -218,5 +249,8 @@ Item {
         triggerRect: root.pillRect
         barWindow: root.barWindow
         player: root.player
+        sources: root.sources
+        viewIndex: root.viewIndex
+        onViewRequested: (dir) => root.cycleSource(dir)
     }
 }

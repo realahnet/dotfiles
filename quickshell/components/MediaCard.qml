@@ -14,6 +14,11 @@ PanelWindow {
     property Item trigger: null
     property var barWindow: null
     property var player: null
+    property var sources: []
+    property int viewIndex: 0
+    property int slideDir: 0
+    signal viewRequested(int dir)
+    readonly property var viewPlayer: (sources && sources.length > 0) ? sources[Math.max(0, Math.min(viewIndex, sources.length - 1))] : player
     property bool shown: false
     property color accent: Theme.fgMuted
     property real morph: 0
@@ -58,6 +63,20 @@ PanelWindow {
             (p.y - u.y) + ((c.y - u.y) - (p.y - u.y)) * t,
             p.width + (c.width - p.width) * t,
             p.height + (c.height - p.height) * t);
+    }
+
+    onViewIndexChanged: {
+        full.x = root.slideDir * 60;
+        slideAnim.restart();
+    }
+
+    NumberAnimation {
+        id: slideAnim
+        target: full
+        property: "x"
+        to: 0
+        duration: 220
+        easing.type: Easing.OutCubic
     }
 
     NumberAnimation {
@@ -215,10 +234,38 @@ PanelWindow {
             height: root.cardHeight
             opacity: root.contentAmount
 
+            // Source dots: white = viewed source, grey = others
+            Row {
+                id: sourceDots
+                anchors.horizontalCenter: parent.horizontalCenter
+                y: 5
+                spacing: 7
+                visible: root.sources && root.sources.length > 1
+                Repeater {
+                    model: root.sources ? root.sources.length : 0
+                    Rectangle {
+                        width: 6; height: 6; radius: 3
+                        color: index === root.viewIndex ? Theme.white : Qt.rgba(1, 1, 1, 0.25)
+                        Behavior on color { ColorAnimation { duration: 180 } }
+                    }
+                }
+            }
+
+            // Scroll anywhere on the card to cycle sources
+            MouseArea {
+                anchors.fill: parent
+                acceptedButtons: Qt.NoButton
+                onWheel: (w) => {
+                    const d = w.angleDelta.y < 0 ? 1 : -1;
+                    root.slideDir = d;
+                    root.viewRequested(d);
+                }
+            }
+
             Item {
                 id: artFrame
                 x: 16
-                y: 16
+                y: 24
                 width: 148
                 height: 148
 
@@ -285,9 +332,9 @@ PanelWindow {
 
             ColumnLayout {
                 x: 180
-                y: 18
+                y: 24
                 width: root.cardWidth - 180 - 18
-                height: 152
+                height: 148
                 spacing: 3
 
                 StyledText {
@@ -320,7 +367,7 @@ PanelWindow {
                     id: seek
                     Layout.fillWidth: true
                     Layout.preferredHeight: 16
-                    mediaPlayer: root.player
+                    mediaPlayer: root.viewPlayer
                     accentColor: root.accent
                 }
 
@@ -335,7 +382,7 @@ PanelWindow {
                     }
                     Item { Layout.fillWidth: true }
                     StyledText {
-                        text: root.fmt(root.player ? root.player.length : 0)
+                        text: root.fmt(root.viewPlayer ? root.viewPlayer.length : 0)
                         color: Theme.fgMuted
                         font.pixelSize: 11
                     }
@@ -352,12 +399,12 @@ PanelWindow {
                             anchors.centerIn: parent
                             text: "󰒮"
                             font.pixelSize: 17
-                            color: MediaActions.canPrevious(root.player, root.isYouTube) ? Theme.fg : Theme.fgMuted
+                            color: MediaActions.canPrevious(root.viewPlayer, root.viewYouTube) ? Theme.fg : Theme.fgMuted
                         }
                         MouseArea {
                             anchors.fill: parent
-                            enabled: MediaActions.canPrevious(root.player, root.isYouTube)
-                            onClicked: MediaActions.previous(root.player, root.isYouTube)
+                            enabled: MediaActions.canPrevious(root.viewPlayer, root.viewYouTube)
+                            onClicked: MediaActions.previous(root.viewPlayer, root.viewYouTube)
                         }
                     }
 
@@ -372,8 +419,8 @@ PanelWindow {
                         }
                         MouseArea {
                             anchors.fill: parent
-                            enabled: root.player !== null && root.player.canTogglePlaying
-                            onClicked: root.player.togglePlaying()
+                            enabled: root.viewPlayer !== null && root.viewPlayer.canTogglePlaying
+                            onClicked: root.viewPlayer.togglePlaying()
                         }
                     }
 
@@ -384,12 +431,12 @@ PanelWindow {
                             anchors.centerIn: parent
                             text: "󰒭"
                             font.pixelSize: 17
-                            color: MediaActions.canNext(root.player, root.isYouTube) ? Theme.fg : Theme.fgMuted
+                            color: MediaActions.canNext(root.viewPlayer, root.viewYouTube) ? Theme.fg : Theme.fgMuted
                         }
                         MouseArea {
                             anchors.fill: parent
-                            enabled: MediaActions.canNext(root.player, root.isYouTube)
-                            onClicked: MediaActions.next(root.player, root.isYouTube)
+                            enabled: MediaActions.canNext(root.viewPlayer, root.viewYouTube)
+                            onClicked: MediaActions.next(root.viewPlayer, root.viewYouTube)
                         }
                     }
                 }
@@ -466,46 +513,53 @@ PanelWindow {
     }
 
     readonly property bool isPlaying: player ? player.isPlaying : false
-    readonly property string title: player ? (player.trackTitle || "") : ""
-    readonly property string artist: player ? (player.trackArtist || (root.artCompanion ? root.artCompanion.trackArtist : "") || "") : ""
-    readonly property string identity: player ? (player.identity || "") : ""
+    readonly property string title: viewPlayer ? (viewPlayer.trackTitle || "") : ""
+    readonly property string artist: viewPlayer ? (viewPlayer.trackArtist || (root.artCompanion ? root.artCompanion.trackArtist : "") || "") : ""
+    readonly property string identity: viewPlayer ? (viewPlayer.identity || "") : ""
 
     readonly property var artCompanion: {
-        if (!player || player.trackArtUrl) return null;
+        if (!viewPlayer || viewPlayer.trackArtUrl) return null;
         const norm = function(t) {
             return String(t || "").toLowerCase()
                 .replace(/^\(\d+\)\s*/, "")
                 .replace(/\s*-\s*youtube\s*$/, "")
                 .trim();
         };
-        const want = norm(player.trackTitle);
+        const want = norm(viewPlayer.trackTitle);
         if (!want) return null;
         const ps = Mpris.players.values;
         for (let i = 0; i < ps.length; ++i) {
             const p = ps[i];
-            if (!p || p === player || !p.trackArtUrl) continue;
+            if (!p || p === viewPlayer || !p.trackArtUrl) continue;
             if (norm(p.trackTitle) === want) return p;
         }
         return null;
     }
 
     readonly property string artSource: {
-        if (!player) return "";
-        let u = player.trackArtUrl || "";
+        if (!viewPlayer) return "";
+        let u = viewPlayer.trackArtUrl || "";
         if (!u && root.artCompanion) u = root.artCompanion.trackArtUrl || "";
         if (!u) return "";
         return u.charAt(0) === "/" ? "file://" + u : u;
     }
 
     readonly property bool chromePlayer: {
-        if (!player) return false;
-        const s = (String(player.identity || "") + " " + String(player.desktopEntry || "")).toLowerCase();
+        if (!viewPlayer) return false;
+        const s = (String(viewPlayer.identity || "") + " " + String(viewPlayer.desktopEntry || "")).toLowerCase();
         return s.indexOf("chrome") !== -1 || s.indexOf("chromium") !== -1;
     }
 
     readonly property bool isYouTube: {
         if (!player || !root.chromePlayer) return false;
         const hay = (String(player.trackTitle || "") + " " + String(player.trackAlbum || "") + " " + String(player.trackArtUrl || "")).toLowerCase();
+        return hay.indexOf("youtube") !== -1 || hay.indexOf("ytimg") !== -1;
+    }
+
+    // Card-side state of the currently viewed source
+    readonly property bool viewYouTube: {
+        if (!viewPlayer || !root.chromePlayer) return false;
+        const hay = (String(viewPlayer.trackTitle || "") + " " + String(viewPlayer.trackAlbum || "") + " " + String(viewPlayer.trackArtUrl || "")).toLowerCase();
         return hay.indexOf("youtube") !== -1 || hay.indexOf("ytimg") !== -1;
     }
 
