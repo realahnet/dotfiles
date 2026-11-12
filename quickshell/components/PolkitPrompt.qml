@@ -320,7 +320,12 @@ PanelWindow {
                             root.errorText = "";
                         }
                     }
-                }
+                    Keys.onPressed: (event) => {
+                        if (event.key === Qt.Key_Backspace && (event.modifiers & Qt.ControlModifier)) {
+                            input.text = "";
+                            event.accepted = true;
+                        }
+                    }                }
             }
 
             StyledText {

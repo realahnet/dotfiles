@@ -19,7 +19,9 @@ Item {
         if (root.unlocking || input.activeFocus)
             return;
         input.forceActiveFocus();
-        if (event.key === Qt.Key_Backspace) {
+        if (event.key === Qt.Key_Backspace && (event.modifiers & Qt.ControlModifier)) {
+            input.text = "";
+        } else if (event.key === Qt.Key_Backspace) {
             if (input.text.length > 0)
                 input.remove(input.text.length - 1, 1);
         } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
@@ -380,7 +382,12 @@ Item {
                     root.errorText = "";
                 }
             }
-        }
+            Keys.onPressed: (event) => {
+                if (event.key === Qt.Key_Backspace && (event.modifiers & Qt.ControlModifier)) {
+                    input.text = "";
+                    event.accepted = true;
+                }
+            }        }
     }
 
     PamContext {
