@@ -20,7 +20,7 @@ Item {
             if (ps[i].isPlaying) return i;
         for (let i = 0; i < ps.length; ++i)
             if (ps[i].playbackState !== MprisPlaybackState.Stopped) return i;
-        return ps.length ? 0 : -1;
+        return -1;
     }
 
     readonly property var player: (autoIndex >= 0 && sources.length > 0) ? sources[autoIndex] : null
