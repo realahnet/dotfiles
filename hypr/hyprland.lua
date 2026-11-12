@@ -267,6 +267,27 @@ hl.bind(mainMod .. " + T", hl.dsp.exec_cmd(terminal))
 hl.bind(mainMod .. " + F", hl.dsp.exec_cmd(fileManager))
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd(browser))
 
+-- Network & Bluetooth TUIs
+hl.bind(mainMod .. " + W",   hl.dsp.exec_cmd(terminal .. " --title nmtui -e nmtui"))
+hl.bind(secondMod .. " + W", hl.dsp.exec_cmd(terminal .. " --title bluetui -e bluetui"))
+
+-- Floating TUI helpers
+hl.window_rule({
+    name  = "float-nmtui",
+    match = { title = "^nmtui$" },
+    float = true,
+    size  = "60% 70%",
+    move  = "center",
+})
+
+hl.window_rule({
+    name  = "float-bluetui",
+    match = { title = "^bluetui$" },
+    float = true,
+    size  = "60% 70%",
+    move  = "center",
+})
+
 -- Screen Lock
 hl.bind(mainMod .. " + M", hl.dsp.exec_cmd("qs -p ~/.config/quickshell ipc call lock lock"))
 
