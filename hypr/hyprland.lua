@@ -277,7 +277,7 @@ hl.window_rule({
     match = { title = "^nmtui$" },
     float = true,
     size  = "60% 70%",
-    move  = "center",
+    move  = "50%-w 50%-h",
 })
 
 hl.window_rule({
@@ -285,7 +285,7 @@ hl.window_rule({
     match = { title = "^bluetui$" },
     float = true,
     size  = "60% 70%",
-    move  = "center",
+    move  = "50%-w 50%-h",
 })
 
 -- Screen Lock
