@@ -42,7 +42,11 @@ Item {
         triggerHovered: root.hovered
         popupWidth: 372
         popupHeight: 442
-        ClockMenu { anchors.fill: parent }
+        ClockMenu { id: clockMenu; anchors.fill: parent }
+        Connections {
+            target: menu
+            function onPopupClosed() { clockMenu.resetToToday() }
+        }
     }
 
     MouseArea {

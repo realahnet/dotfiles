@@ -83,6 +83,11 @@ Rectangle {
             else if (w.angleDelta.y > 0) root.prevMonth();
         }
     }
+    function resetToToday() {
+        var n = new Date();
+        root.viewYear = n.getFullYear();
+        root.viewMonth = n.getMonth();
+    }
     function prevMonth() {
         var d = new Date(root.viewYear, root.viewMonth - 1, 1);
         root.viewYear = d.getFullYear(); root.viewMonth = d.getMonth();

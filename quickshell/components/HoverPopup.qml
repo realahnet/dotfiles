@@ -38,6 +38,7 @@ PanelWindow {
     property int rightMargin: computeRightMargin()
 
     property bool showWindow: false
+    signal popupClosed()
     property real reveal: 0
     property bool opening: true
     function open() {
@@ -49,6 +50,7 @@ PanelWindow {
         reveal = 1;
     }
     function close() {
+        popupClosed();
         opening = false;
         reveal = 0;
         hideTimer.restart();
