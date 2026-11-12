@@ -145,8 +145,9 @@ Item {
         radius: 6 + (height / 2 - 6) * root.shrink
         color: Qt.rgba(0, 0, 0, 0.22)
         clip: true
-        opacity: card.morph > 0.01 ? 0
-            : (root.shrink > 0.7 ? Math.max(0, 1 - (root.shrink - 0.7) / 0.3) : 1)
+        readonly property real morphFade: Math.max(0, Math.min(1, (0.3 - card.morph) / 0.3))
+        opacity: morphFade
+            * (root.shrink > 0.7 ? Math.max(0, 1 - (root.shrink - 0.7) / 0.3) : 1)
 
         Row {
             id: content

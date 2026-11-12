@@ -28,7 +28,7 @@ PanelWindow {
         full.x = 0;
         morphAnim.stop();
         morph = shown ? (morph <= 0 ? 0 : morph) : (morph >= 1 ? 1 : morph);
-        morphAnim.duration = shown ? 240 : 160;
+        morphAnim.duration = shown ? 240 : 220;
         morphAnim.easing.type = shown ? Easing.OutCubic : Easing.InCubic;
         morphAnim.to = shown ? 1 : 0;
         morphAnim.start();
@@ -37,7 +37,10 @@ PanelWindow {
     readonly property int cardWidth: 440
     readonly property int cardHeight: 188
     readonly property int cardGap: 6
-    readonly property real contentAmount: Math.max(0, Math.min(1, (morph - 0.22) / 0.72))
+    // Expand: content fades in late; Collapse: content stays while the shell shrinks
+    readonly property real contentAmount: root.shown
+        ? Math.max(0, Math.min(1, (morph - 0.22) / 0.72))
+        : Math.max(0, Math.min(1, (morph - 0.35) / 0.55))
 
     property rect triggerRect: Qt.rect(0, 0, 0, 0)
 
