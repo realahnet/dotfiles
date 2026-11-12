@@ -275,9 +275,9 @@ PanelWindow {
             Item {
                 id: artFrame
                 x: 16
-                y: 34
-                width: 148
-                height: 148
+                y: 28
+                width: 140
+                height: 140
 
                 Canvas {
                     id: sampler
@@ -342,9 +342,9 @@ PanelWindow {
 
             ColumnLayout {
                 x: 180
-                y: 34
+                y: 28
                 width: root.cardWidth - 180 - 18
-                height: 142
+                height: 140
                 spacing: 3
 
                 StyledText {
