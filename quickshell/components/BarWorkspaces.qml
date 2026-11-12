@@ -23,6 +23,15 @@ Item {
     implicitWidth: row.implicitWidth
     implicitHeight: Theme.barHeight
 
+    // Recompute this list whenever Hyprland's workspace list changes.
+    // ObjectModel.values is what makes the binding reactive.
+    readonly property var workspaces: {
+        const all = Hyprland.workspaces.values;
+        if (!root.monitor)
+            return all;
+        return all.filter(ws => ws.monitor && ws.monitor.name === root.monitor.name);
+    }
+
     // Sliding highlight behind the active workspace pill
     Rectangle {
         id: highlight
@@ -51,15 +60,6 @@ Item {
     Row {
         id: row
         spacing: 0
-
-    // Recompute this list whenever Hyprland's workspace list changes.
-    // ObjectModel.values is what makes the binding reactive.
-    readonly property var workspaces: {
-        const all = Hyprland.workspaces.values;
-        if (!root.monitor)
-            return all;
-        return all.filter(ws => ws.monitor && ws.monitor.name === root.monitor.name);
-    }
 
     Repeater {
         model: root.workspaces
