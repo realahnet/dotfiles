@@ -73,6 +73,16 @@ Rectangle {
             }
         }
     }
+    // Scroll anywhere below the date line to flip months; clicks pass through
+    MouseArea {
+        anchors { left: parent.left; right: parent.right; top: parent.top; bottom: parent.bottom }
+        anchors.topMargin: 102
+        acceptedButtons: Qt.NoButton
+        onWheel: (w) => {
+            if (w.angleDelta.y < 0) root.nextMonth();
+            else if (w.angleDelta.y > 0) root.prevMonth();
+        }
+    }
     function prevMonth() {
         var d = new Date(root.viewYear, root.viewMonth - 1, 1);
         root.viewYear = d.getFullYear(); root.viewMonth = d.getMonth();

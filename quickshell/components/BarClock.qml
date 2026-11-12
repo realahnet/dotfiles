@@ -41,7 +41,7 @@ Item {
         trigger: root
         triggerHovered: root.hovered
         popupWidth: 372
-        popupHeight: 400
+        popupHeight: 442
         ClockMenu { anchors.fill: parent }
     }
 
