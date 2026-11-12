@@ -49,13 +49,14 @@ Item {
 
     onAutoIndexChanged: if (!manualSel && !(card && card.shown)) viewIndex = Math.max(0, autoIndex)
 
-    Connections {
-        target: card
-        function onShownChanged() {
-            if (!card.shown) {
-                root.manualSel = false;
-                root.viewIndex = Math.max(0, root.autoIndex);
-            }
+    // Remember the last viewed source across collapse/expand; only fall back
+    // to the auto-picked one if it disappears from the source list.
+    onSourcesChanged: {
+        if (root.sources.length === 0) {
+            root.manualSel = false;
+            root.viewIndex = 0;
+        } else if (root.viewIndex >= root.sources.length) {
+            root.viewIndex = root.sources.length - 1;
         }
     }
 
