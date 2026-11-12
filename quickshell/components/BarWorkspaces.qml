@@ -14,13 +14,43 @@ import Quickshell.Hyprland
 import QtQuick
 import "../services"
 
-Row {
+Item {
     id: root
 
     // The Hyprland monitor this bar belongs to. Bar.qml passes it in.
     property var monitor: null
 
-    spacing: 0
+    implicitWidth: row.implicitWidth
+    implicitHeight: Theme.barHeight
+
+    // Sliding highlight behind the active workspace pill
+    Rectangle {
+        id: highlight
+        readonly property var activePill: {
+            const aw = root.monitor ? root.monitor.activeWorkspace : null;
+            if (!aw) return null;
+            for (let i = 0; i < row.children.length; ++i) {
+                const c = row.children[i];
+                if (c.modelData && c.modelData.id === aw.id) return c;
+            }
+            return null;
+        }
+        x: activePill ? activePill.x : 0
+        width: activePill ? activePill.width : 0
+        y: (root.implicitHeight - 26) / 2
+        height: 26
+        radius: Theme.radiusSmall
+        color: Theme.primary
+        visible: activePill !== null
+        opacity: activePill ? 1 : 0
+        Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+        Behavior on width { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+        Behavior on opacity { NumberAnimation { duration: 120 } }
+    }
+
+    Row {
+        id: row
+        spacing: 0
 
     // Recompute this list whenever Hyprland's workspace list changes.
     // ObjectModel.values is what makes the binding reactive.
@@ -56,9 +86,8 @@ Row {
             height: 26
             implicitWidth: content.implicitWidth + 24
             radius: Theme.radiusSmall
-            color: active ? Theme.primary
-                 : urgent ? mixColor(Theme.elevated, Qt.rgba(0x55 / 255, 0x55 / 255, 0x55 / 255, 1), urgentLevel)
-                 : hover.hovered ? Theme.elevated
+            color: urgent ? mixColor(Theme.elevated, Qt.rgba(0x55 / 255, 0x55 / 255, 0x55 / 255, 1), urgentLevel)
+                 : (hover.hovered && !active) ? Theme.elevated
                  : "transparent"
 
             onUrgentChanged: if (!urgent) urgentLevel = 0
