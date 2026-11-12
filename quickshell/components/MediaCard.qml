@@ -24,6 +24,8 @@ PanelWindow {
     property real morph: 0
 
     onShownChanged: {
+        slideAnim.stop();
+        full.x = 0;
         morphAnim.stop();
         morph = shown ? (morph <= 0 ? 0 : morph) : (morph >= 1 ? 1 : morph);
         morphAnim.duration = shown ? 240 : 160;
@@ -66,7 +68,7 @@ PanelWindow {
     }
 
     onViewIndexChanged: {
-        full.x = root.slideDir * 60;
+        full.x = root.slideDir * root.cardWidth;
         slideAnim.restart();
     }
 
@@ -75,7 +77,7 @@ PanelWindow {
         target: full
         property: "x"
         to: 0
-        duration: 220
+        duration: 260
         easing.type: Easing.OutCubic
     }
 
@@ -273,7 +275,7 @@ PanelWindow {
             Item {
                 id: artFrame
                 x: 16
-                y: 28
+                y: 34
                 width: 148
                 height: 148
 
@@ -340,9 +342,9 @@ PanelWindow {
 
             ColumnLayout {
                 x: 180
-                y: 28
+                y: 34
                 width: root.cardWidth - 180 - 18
-                height: 148
+                height: 142
                 spacing: 3
 
                 StyledText {
