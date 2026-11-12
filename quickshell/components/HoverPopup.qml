@@ -11,7 +11,7 @@ PanelWindow {
     property int popupWidth: 300
     property int popupHeight: 200
     property bool triggerHovered: false
-    readonly property bool popupHovered: hoverArea.containsMouse
+    readonly property bool popupHovered: hoverHandler.hovered
     readonly property bool shouldShow: triggerHovered || popupHovered
     default property alias content: body.data
 
@@ -67,7 +67,7 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.opening ? 200 : 140
+            duration: root.opening ? 130 : 85
             easing.type: root.opening ? Easing.OutCubic : Easing.InCubic
         }
     }
@@ -78,11 +78,8 @@ PanelWindow {
         scale: 0.8 + 0.2 * root.reveal
         transformOrigin: Item.TopRight
     }
-    MouseArea {
-        id: hoverArea
-        z: -1
-        anchors.fill: parent
-        hoverEnabled: true
-        acceptedButtons: Qt.NoButton
+    HoverHandler {
+        id: hoverHandler
+        acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
     }
 }

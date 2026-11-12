@@ -16,7 +16,16 @@ PanelWindow {
     property var player: null
     property bool shown: false
     property color accent: Theme.fgMuted
-    property real morph: shown ? 1 : 0
+    property real morph: 0
+
+    onShownChanged: {
+        morphAnim.stop();
+        morph = shown ? (morph <= 0 ? 0 : morph) : (morph >= 1 ? 1 : morph);
+        morphAnim.duration = shown ? 240 : 160;
+        morphAnim.easing.type = shown ? Easing.OutCubic : Easing.InCubic;
+        morphAnim.to = shown ? 1 : 0;
+        morphAnim.start();
+    }
 
     readonly property int cardWidth: 440
     readonly property int cardHeight: 188
@@ -51,11 +60,12 @@ PanelWindow {
             p.height + (c.height - p.height) * t);
     }
 
-    Behavior on morph {
-        NumberAnimation {
-            duration: root.shown ? 200 : 140
-            easing.type: root.shown ? Easing.OutCubic : Easing.InCubic
-        }
+    NumberAnimation {
+        id: morphAnim
+        target: root
+        property: "morph"
+        duration: 300
+        easing.type: Easing.OutCubic
     }
 
     screen: barWindow ? barWindow.screen : null

@@ -48,9 +48,8 @@ PanelWindow {
 
     Behavior on reveal {
         NumberAnimation {
-            duration: root.opening ? 180 : 120
-            easing.type: root.opening ? Easing.OutBack : Easing.InCubic
-            easing.overshoot: 1.2
+            duration: root.opening ? 130 : 85
+            easing.type: root.opening ? Easing.OutCubic : Easing.InCubic
         }
     }
 
