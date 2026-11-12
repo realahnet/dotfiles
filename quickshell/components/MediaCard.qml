@@ -423,7 +423,7 @@ PanelWindow {
                         height: 30
                         StyledText {
                             anchors.centerIn: parent
-                            text: root.isPlaying ? "󰏤" : "󰐊"
+                            text: root.viewIsPlaying ? "󰏤" : "󰐊"
                             font.pixelSize: 23
                             color: Theme.white
                         }
@@ -523,6 +523,7 @@ PanelWindow {
     }
 
     readonly property bool isPlaying: player ? player.isPlaying : false
+    readonly property bool viewIsPlaying: viewPlayer ? viewPlayer.isPlaying : false
     readonly property string title: viewPlayer ? (viewPlayer.trackTitle || "") : ""
     readonly property string artist: viewPlayer ? (viewPlayer.trackArtist || (root.artCompanion ? root.artCompanion.trackArtist : "") || "") : ""
     readonly property string identity: viewPlayer ? (viewPlayer.identity || "") : ""
