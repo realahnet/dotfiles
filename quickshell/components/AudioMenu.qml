@@ -129,6 +129,15 @@ Rectangle {
     // Scroll anywhere on the card to change the master volume
     MouseArea {
         anchors.fill: parent
+        acceptedButtons: Qt.MiddleButton
+        onClicked: (m) => {
+            if (root.sink && root.sink.audio)
+                root.sink.audio.muted = !root.sink.audio.muted;
+        }
+    }
+
+    MouseArea {
+        anchors.fill: parent
         acceptedButtons: Qt.NoButton
         onWheel: (w) => {
             if (!root.sink || !root.sink.audio) return;
