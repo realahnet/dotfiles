@@ -273,7 +273,7 @@ PanelWindow {
             Item {
                 id: artFrame
                 x: 16
-                y: 24
+                y: 28
                 width: 148
                 height: 148
 
@@ -340,7 +340,7 @@ PanelWindow {
 
             ColumnLayout {
                 x: 180
-                y: 24
+                y: 28
                 width: root.cardWidth - 180 - 18
                 height: 148
                 spacing: 3
