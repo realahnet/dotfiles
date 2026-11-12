@@ -126,17 +126,20 @@ Item {
         return "";
     }
 
-    readonly property string shownIcon: player ? iconFor(player) : lastIcon
-    readonly property bool shownYouTube: player ? isYT(player) : lastYouTube
-    readonly property bool shownPlaying: player ? player.isPlaying : lastPlaying
-    readonly property bool shownCanPrev: player ? MediaActions.canPrevious(player, isYT(player)) : lastCanPrev
-    readonly property bool shownCanNext: player ? MediaActions.canNext(player, isYT(player)) : lastCanNext
+    readonly property var viewPlayer: (sources.length > 0) ? sources[Math.max(0, Math.min(viewIndex, sources.length - 1))] : null
+    readonly property bool viewYouTubeNow: isYT(viewPlayer)
 
-    onShownIconChanged: if (player) lastIcon = shownIcon
-    onShownYouTubeChanged: if (player) lastYouTube = shownYouTube
-    onShownPlayingChanged: if (player) lastPlaying = shownPlaying
-    onShownCanPrevChanged: if (player) lastCanPrev = shownCanPrev
-    onShownCanNextChanged: if (player) lastCanNext = shownCanNext
+    readonly property string shownIcon: viewPlayer ? iconFor(viewPlayer) : lastIcon
+    readonly property bool shownYouTube: viewPlayer ? isYT(viewPlayer) : lastYouTube
+    readonly property bool shownPlaying: viewPlayer ? viewPlayer.isPlaying : lastPlaying
+    readonly property bool shownCanPrev: viewPlayer ? MediaActions.canPrevious(viewPlayer, viewYouTubeNow) : lastCanPrev
+    readonly property bool shownCanNext: viewPlayer ? MediaActions.canNext(viewPlayer, viewYouTubeNow) : lastCanNext
+
+    onShownIconChanged: if (viewPlayer) lastIcon = shownIcon
+    onShownYouTubeChanged: if (viewPlayer) lastYouTube = shownYouTube
+    onShownPlayingChanged: if (viewPlayer) lastPlaying = shownPlaying
+    onShownCanPrevChanged: if (viewPlayer) lastCanPrev = shownCanPrev
+    onShownCanNextChanged: if (viewPlayer) lastCanNext = shownCanNext
 
     Rectangle {
         id: pill
@@ -195,7 +198,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     enabled: root.hasPlayer && root.shownCanPrev
-                    onClicked: MediaActions.previous(root.player, root.isYouTubeNow)
+                    onClicked: MediaActions.previous(root.viewPlayer, root.viewYouTubeNow)
                 }
             }
             Item {
@@ -209,8 +212,8 @@ Item {
                 }
                 MouseArea {
                     anchors.fill: parent
-                    enabled: root.player !== null && root.player.canTogglePlaying
-                    onClicked: root.player.togglePlaying()
+                    enabled: root.viewPlayer !== null && root.viewPlayer.canTogglePlaying
+                    onClicked: root.viewPlayer.togglePlaying()
                 }
             }
             Item {
@@ -225,7 +228,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     enabled: root.hasPlayer && root.shownCanNext
-                    onClicked: MediaActions.next(root.player, root.isYouTubeNow)
+                    onClicked: MediaActions.next(root.viewPlayer, root.viewYouTubeNow)
                 }
             }
         }
