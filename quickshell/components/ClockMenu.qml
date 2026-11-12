@@ -74,11 +74,14 @@ Rectangle {
         }
     }
     // Scroll anywhere below the date line to flip months; clicks pass through
+    Timer { id: wheelCooldown; interval: 300 }
     MouseArea {
         anchors { left: parent.left; right: parent.right; top: parent.top; bottom: parent.bottom }
         anchors.topMargin: 102
         acceptedButtons: Qt.NoButton
         onWheel: (w) => {
+            if (wheelCooldown.running) return;
+            wheelCooldown.restart();
             if (w.angleDelta.y < 0) root.nextMonth();
             else if (w.angleDelta.y > 0) root.prevMonth();
         }
