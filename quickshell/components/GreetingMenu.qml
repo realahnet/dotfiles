@@ -21,11 +21,22 @@ Rectangle {
         anchors.margins: 18
         spacing: 4
 
-        StyledText {
-            text: root.emoji + " " + root.heading + ","
-            color: Theme.white
-            font.pixelSize: 22
-            font.weight: Font.Bold
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 8
+            // Emoji glyphs carry side bearing; pull it back so the visual
+            // left padding matches the right side of the card.
+            StyledText {
+                Layout.leftMargin: -4
+                text: root.emoji
+                font.pixelSize: 22
+            }
+            StyledText {
+                text: root.heading
+                color: Theme.white
+                font.pixelSize: 22
+                font.weight: Font.Bold
+            }
         }
 
         // Right-aligned under the greeting.
