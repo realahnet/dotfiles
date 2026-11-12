@@ -52,13 +52,14 @@ Item {
         color: Theme.primary
         visible: activePill !== null
         opacity: activePill ? 1 : 0
-        Behavior on x { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
-        Behavior on width { NumberAnimation { duration: 220; easing.type: Easing.OutCubic } }
+        Behavior on x { NumberAnimation { duration: 170; easing.type: Easing.OutCubic } }
+        Behavior on width { NumberAnimation { duration: 170; easing.type: Easing.OutCubic } }
         Behavior on opacity { NumberAnimation { duration: 120 } }
     }
 
     Row {
         id: row
+        anchors.verticalCenter: parent.verticalCenter
         spacing: 0
 
     Repeater {
