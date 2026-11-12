@@ -227,6 +227,29 @@ PanelWindow {
             }
         }
 
+        Timer {
+            id: wheelCooldown
+            interval: 300
+        }
+
+        // Source dots: fixed at the top, not part of the slide
+        Row {
+            id: sourceDots
+            anchors.horizontalCenter: parent.horizontalCenter
+            y: 12
+            spacing: 7
+            opacity: root.contentAmount
+            visible: root.sources && root.sources.length > 1
+            Repeater {
+                model: root.sources ? root.sources.length : 0
+                Rectangle {
+                    width: 6; height: 6; radius: 3
+                    color: index === root.viewIndex ? Theme.white : Qt.rgba(1, 1, 1, 0.25)
+                    Behavior on color { ColorAnimation { duration: 180 } }
+                }
+            }
+        }
+
         // Expanded contents, clipped to the growing rectangle.
         Item {
             id: full
@@ -234,28 +257,13 @@ PanelWindow {
             height: root.cardHeight
             opacity: root.contentAmount
 
-            // Source dots: white = viewed source, grey = others
-            Row {
-                id: sourceDots
-                anchors.horizontalCenter: parent.horizontalCenter
-                y: 5
-                spacing: 7
-                visible: root.sources && root.sources.length > 1
-                Repeater {
-                    model: root.sources ? root.sources.length : 0
-                    Rectangle {
-                        width: 6; height: 6; radius: 3
-                        color: index === root.viewIndex ? Theme.white : Qt.rgba(1, 1, 1, 0.25)
-                        Behavior on color { ColorAnimation { duration: 180 } }
-                    }
-                }
-            }
-
-            // Scroll anywhere on the card to cycle sources
+            // Scroll anywhere on the card to cycle sources (debounced)
             MouseArea {
                 anchors.fill: parent
                 acceptedButtons: Qt.NoButton
                 onWheel: (w) => {
+                    if (wheelCooldown.running) return;
+                    wheelCooldown.restart();
                     const d = w.angleDelta.y < 0 ? 1 : -1;
                     root.slideDir = d;
                     root.viewRequested(d);
